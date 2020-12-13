@@ -8,6 +8,9 @@ namespace Pathfinding
 {
     class DFS : IPathfinder
     {
-
+        public List<Vertex> PathTo(Vertex start, Vertex goal)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

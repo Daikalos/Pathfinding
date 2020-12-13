@@ -14,7 +14,7 @@ namespace Window.Camera
             mouseOldPosition;
         private static float 
             moveSpeed,
-            curZoom,
+            zoom,
             zoomValue;
 
         public static Matrix TranslationMatrix
@@ -23,7 +23,7 @@ namespace Window.Camera
             {
                 return
                     Matrix.CreateTranslation(new Vector3(-position, 0)) *
-                    Matrix.CreateScale(curZoom, curZoom, 1.0f) *
+                    Matrix.CreateScale(zoom, zoom, 1.0f) *
                     Matrix.CreateTranslation(new Vector3(ViewportCenter, 0));
             }
         }
@@ -35,7 +35,7 @@ namespace Window.Camera
         }
         public static Vector2 TopLeftCorner
         {
-            get => position - ViewportCenter * (1 / curZoom);
+            get => position - ViewportCenter * (1 / zoom);
         }
         public static Vector2 ViewportCenter
         {
@@ -44,19 +44,19 @@ namespace Window.Camera
 
         public static float Zoom
         {
-            get => curZoom;
+            get => zoom;
         }
 
         public static void Initialize(GameWindow window, float speed)
         {
             position = ViewportCenter;
             viewportSize = window.ClientBounds.Size.ToVector2();
-            zoomLimit = new Vector2(0.5f, 2.0f);
+            zoomLimit = new Vector2(0.25f, 4.0f);
 
             mouseOldPosition = Point.Zero;
 
             moveSpeed = speed;
-            curZoom = 1.0f;
+            zoom = 1.0f;
             zoomValue = 0.05f;
         }
 
@@ -64,7 +64,7 @@ namespace Window.Camera
         {
             position = ViewportCenter;
             mouseOldPosition = Point.Zero;
-            curZoom = 1.0f;
+            zoom = 1.0f;
         }
 
         public static void MoveCamera(GameTime gameTime)
@@ -89,24 +89,24 @@ namespace Window.Camera
 
             if (KeyMouseReader.ScrollUp())
             {
-                curZoom += zoomValue;
-                curZoom = MathHelper.Clamp(curZoom, zoomLimit.X, zoomLimit.Y);
+                zoom += zoomValue;
+                zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
             if (KeyMouseReader.ScrollDown())
             {
-                curZoom -= zoomValue;
-                curZoom = MathHelper.Clamp(curZoom, zoomLimit.X, zoomLimit.Y);
+                zoom -= zoomValue;
+                zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
         }
         private static void KeyboardMovement(GameTime gameTime)
         {
             if (KeyMouseReader.KeyHold(Keys.Up))
             {
-                position.Y -= moveSpeed * (1 / curZoom) * 60 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.Y -= moveSpeed * (1 / zoom) * 60 * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             if (KeyMouseReader.KeyHold(Keys.Down))
             {
-                position.Y += moveSpeed * (1 / curZoom) * 60 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.Y += moveSpeed * (1 / zoom) * 60 * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             if (KeyMouseReader.KeyHold(Keys.Left))
             {
@@ -119,19 +119,19 @@ namespace Window.Camera
 
             if (KeyMouseReader.KeyHold(Keys.OemPlus))
             {
-                curZoom += zoomValue / 2;
-                curZoom = MathHelper.Clamp(curZoom, zoomLimit.X, zoomLimit.Y);
+                zoom += zoomValue / 2;
+                zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
             if (KeyMouseReader.KeyHold(Keys.OemMinus))
             {
-                curZoom -= zoomValue / 2;
-                curZoom = MathHelper.Clamp(curZoom, zoomLimit.X, zoomLimit.Y);
+                zoom -= zoomValue / 2;
+                zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
         }
 
-        public static Vector2 ViewToWorld(Vector2 aPosition)
+        public static Vector2 ViewToWorld(Vector2 position)
         {
-            return Vector2.Transform(aPosition, Matrix.Invert(TranslationMatrix));
+            return Vector2.Transform(position, Matrix.Invert(TranslationMatrix));
         }
     }
 }
