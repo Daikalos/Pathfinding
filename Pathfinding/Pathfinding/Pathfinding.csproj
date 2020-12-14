@@ -48,12 +48,15 @@
     <Compile Include="src\Graph\Graph.cs" />
     <Compile Include="src\Graph\Vertex.cs" />
     <Compile Include="src\Game\Main.cs" />
+    <Compile Include="src\Pathfinders\Utilities\MaxHeap.cs" />
+    <Compile Include="src\Pathfinders\Utilities\MinHeap.cs" />
+    <Compile Include="src\Pathfinders\Utilities\PriorityQueue.cs" />
     <Compile Include="src\Window\Camera.cs" />
     <Compile Include="src\Pathfinders\A_Star.cs" />
     <Compile Include="src\Pathfinders\BFS.cs" />
     <Compile Include="src\Pathfinders\DFS.cs" />
     <Compile Include="src\Pathfinders\Dijkstra.cs" />
-    <Compile Include="src\Pathfinders\Pathfinder.cs" />
+    <Compile Include="src\Pathfinders\IPathfinder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Utilities\KeyMouseReader.cs" />

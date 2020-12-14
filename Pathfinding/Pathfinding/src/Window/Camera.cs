@@ -49,8 +49,8 @@ namespace Window.Camera
 
         public static void Initialize(GameWindow window, float speed)
         {
-            position = ViewportCenter;
             viewportSize = window.ClientBounds.Size.ToVector2();
+            position = ViewportCenter;
             zoomLimit = new Vector2(0.25f, 4.0f);
 
             mouseOldPosition = Point.Zero;
@@ -102,19 +102,19 @@ namespace Window.Camera
         {
             if (KeyMouseReader.KeyHold(Keys.Up))
             {
-                position.Y -= moveSpeed * (1 / zoom) * 60 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.Y -= moveSpeed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             if (KeyMouseReader.KeyHold(Keys.Down))
             {
-                position.Y += moveSpeed * (1 / zoom) * 60 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.Y += moveSpeed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             if (KeyMouseReader.KeyHold(Keys.Left))
             {
-                position.X -= moveSpeed * 60 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.X -= moveSpeed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             if (KeyMouseReader.KeyHold(Keys.Right))
             {
-                position.X += moveSpeed * 60 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.X += moveSpeed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
             if (KeyMouseReader.KeyHold(Keys.OemPlus))
@@ -132,6 +132,10 @@ namespace Window.Camera
         public static Vector2 ViewToWorld(Vector2 position)
         {
             return Vector2.Transform(position, Matrix.Invert(TranslationMatrix));
+        }
+        public static Point ViewToWorld(Point position)
+        {
+            return Vector2.Transform(position.ToVector2(), Matrix.Invert(TranslationMatrix)).ToPoint();
         }
     }
 }
