@@ -48,9 +48,9 @@
     <Compile Include="src\Graph\Graph.cs" />
     <Compile Include="src\Graph\Vertex.cs" />
     <Compile Include="src\Game\Main.cs" />
-    <Compile Include="src\Pathfinders\Utilities\MaxHeap.cs" />
-    <Compile Include="src\Pathfinders\Utilities\MinHeap.cs" />
-    <Compile Include="src\Pathfinders\Utilities\PriorityQueue.cs" />
+    <Compile Include="src\Pathfinders\TreeStructure\MaxHeap.cs" />
+    <Compile Include="src\Pathfinders\TreeStructure\MinHeap.cs" />
+    <Compile Include="src\Pathfinders\TreeStructure\PriorityQueue.cs" />
     <Compile Include="src\Window\Camera.cs" />
     <Compile Include="src\Pathfinders\A_Star.cs" />
     <Compile Include="src\Pathfinders\BFS.cs" />

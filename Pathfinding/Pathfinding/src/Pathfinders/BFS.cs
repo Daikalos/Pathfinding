@@ -31,7 +31,8 @@ namespace Pathfinding
                         neighbour.IsVisited = true;
                         neighbour.Parent = current;
                         
-                        open.Enqueue(neighbour);
+                        if (!open.Contains(neighbour))
+                            open.Enqueue(neighbour);
                     }
                 }
             }
