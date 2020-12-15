@@ -103,10 +103,10 @@ public class Graph
                         if (j == 0 && i == 0)
                             continue;
 
-                        if (WithinBoard(x + i, y + j))
+                        if (WithinBoard(x + j, y + i))
                         {
                             Vertex vertex = AtPos(x, y);
-                            Vertex neighbour = AtPos(x + i, y + j);
+                            Vertex neighbour = AtPos(x + j, y + i);
 
                             new Edge(vertex, neighbour);
                         }

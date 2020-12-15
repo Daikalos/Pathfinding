@@ -27,16 +27,11 @@ namespace Pathfinding
         private Vertex start;
         private Vertex goal;
 
-        private Button button_A_Star;
-        private Button button_Dijkstra;
-        private Button button_BFS;
-        private Button button_DFS;
-        private Button button_FindPath;
-        private Button button_DelPath;
-        private Button button_ClearGrid;
+        private List<Button> buttons;
 
         private IPathfinder pathfinder;
         private string currPath;
+        private string dirPath;
 
         public Main()
         {
@@ -51,12 +46,12 @@ namespace Pathfinding
             graphics.ApplyChanges();
 
             IsFixedTimeStep = true;
-            TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 60.0f); //60 fps
+            TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 144.0f);
             MaxElapsedTime = TargetElapsedTime;
 
             IsMouseVisible = true;
 
-            graph = new Graph(128, 64, 128, 32, 4, 4);
+            graph = new Graph(64, 64, 32, 32, 4, 4);
             graph.GenerateGraph();
 
             Camera.Initialize(Window, 600.0f);
@@ -65,16 +60,25 @@ namespace Pathfinding
 
             path = new List<Vertex>();
 
-            button_A_Star = new Button(new Vector2(16, 16), new Point(128, 48), Select_A_Star, "A*", 1.0f, 1.0f, 1.05f);
-            button_Dijkstra = new Button(new Vector2(16, 80), new Point(128, 48), Select_Dijkstra, "Dijkstra", 0.40f, 1.0f, 1.05f);
-            button_BFS = new Button(new Vector2(16, 144), new Point(128, 48), Select_BFS, "BFS", 1.0f, 1.0f, 1.05f);
-            button_DFS = new Button(new Vector2(16, 208), new Point(128, 48), Select_DFS, "DFS", 1.0f, 1.0f, 1.05f);
-            button_FindPath = new Button(new Vector2(16, Window.ClientBounds.Height - 128 - 32), new Point(452, 64), FindPath, "Find Path", 1.0f, 1.0f, 1.02f);
-            button_DelPath = new Button(new Vector2(16, Window.ClientBounds.Height - 64 - 16), new Point(452, 64), DelPath, "Delete Path", 1.0f, 1.0f, 1.02f);
-            button_ClearGrid = new Button(new Vector2(Window.ClientBounds.Width - 128 - 16, Window.ClientBounds.Height - 48 - 16), new Point(128, 48), ClearGrid, "Clear", 0.6f, 1.0f, 1.05f);
+            buttons = new List<Button>()
+            {
+                new Button(new Vector2(16, 16), new Point(128, 48), Select_A_Star, "A*", 1.0f, 1.0f, 1.05f),
+                new Button(new Vector2(16, 80), new Point(128, 48), Select_Dijkstra, "Dijkstra", 0.40f, 1.0f, 1.05f),
+                new Button(new Vector2(16, 144), new Point(128, 48), Select_BFS, "BFS", 1.0f, 1.0f, 1.05f),
+                new Button(new Vector2(16, 208), new Point(128, 48), Select_DFS, "DFS", 1.0f, 1.0f, 1.05f),
+
+                new Button(new Vector2(16, Window.ClientBounds.Height - 128 - 32), new Point(452, 64), FindPath, "Find Path", 1.0f, 1.0f, 1.02f),
+                new Button(new Vector2(16, Window.ClientBounds.Height - 64 - 16), new Point(452, 64), DelPath, "Delete Path", 1.0f, 1.0f, 1.02f),
+
+                new Button(new Vector2(Window.ClientBounds.Width - 128 - 16, 16), new Point(128, 48), EightDir, "8-Dir", 0.6f, 1.0f, 1.05f),
+                new Button(new Vector2(Window.ClientBounds.Width - 128 - 16, 80), new Point(128, 48), FourDir, "4-Dir", 0.6f, 1.0f, 1.05f),
+
+                new Button(new Vector2(Window.ClientBounds.Width - 128 - 16, 144), new Point(128, 48), ClearGrid, "Clear", 0.6f, 1.0f, 1.05f)
+            };
 
             pathfinder = null;
-            currPath = String.Empty;
+            currPath = string.Empty;
+            dirPath = "8-Dir";
 
             base.Initialize();
         }
@@ -90,13 +94,16 @@ namespace Pathfinding
 
             ResourceManager.AddFont("8bit", this.Content.Load<SpriteFont>("Fonts/8bit"));
 
-            button_A_Star.SetTexture("Border_Short");
-            button_Dijkstra.SetTexture("Border_Short");
-            button_BFS.SetTexture("Border_Short");
-            button_DFS.SetTexture("Border_Short");
-            button_FindPath.SetTexture("Border_Long");
-            button_DelPath.SetTexture("Border_Long");
-            button_ClearGrid.SetTexture("Border_Short");
+            Texture2D bShort = ResourceManager.RequestTexture("Border_Short");
+            Texture2D bLong = ResourceManager.RequestTexture("Border_Long");
+
+            buttons.ForEach(b => 
+            {
+                if (b.Size.X == bShort.Width)
+                    b.SetTexture("Border_Short");
+                else if (b.Size.X == bLong.Width)
+                    b.SetTexture("Border_Long");
+            });
 
             node = ResourceManager.RequestTexture("Node");
             font = ResourceManager.RequestFont("8bit");
@@ -112,23 +119,23 @@ namespace Pathfinding
             KeyMouseReader.Update();
             Camera.MoveCamera(gameTime);
 
-            button_A_Star.Update(Window);
-            button_Dijkstra.Update(Window);
-            button_BFS.Update(Window);
-            button_DFS.Update(Window);
-            button_FindPath.Update(Window);
-            button_DelPath.Update(Window);
-            button_ClearGrid.Update(Window);
+            buttons.ForEach(b => b.Update(Window));
 
             current = graph.AtMousePos(Camera.ViewToWorld(KeyMouseReader.MousePos));
 
             if (KeyMouseReader.KeyPressed(Keys.Q))
             {
-                start = graph.AtMousePos(Camera.ViewToWorld(KeyMouseReader.MousePos));
+                Vertex vert = graph.AtMousePos(Camera.ViewToWorld(KeyMouseReader.MousePos));
+
+                if (vert.EdgeCount > 0)
+                    start = vert;
             }
             if (KeyMouseReader.KeyPressed(Keys.E))
             {
-                goal = graph.AtMousePos(Camera.ViewToWorld(KeyMouseReader.MousePos));
+                Vertex vert = graph.AtMousePos(Camera.ViewToWorld(KeyMouseReader.MousePos));
+                
+                if (vert.EdgeCount > 0)
+                    goal = vert;
             }
 
             if (KeyMouseReader.LeftHold())
@@ -152,6 +159,8 @@ namespace Pathfinding
             drawBatch.Begin(DrawSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.AnisotropicClamp, null, null, null, Camera.TranslationMatrix);
 
+            // DRAW LEVEL
+
             for (int y = 0; y < graph.Height; ++y)
             {
                 for (int x = 0; x < graph.Width; ++x) // Draw Grid
@@ -159,8 +168,24 @@ namespace Pathfinding
                     bool isWall = (graph.AtPos(new Point(x, y)).EdgeCount == 0);
                     Color color = (!isWall) ? Color.LightGray : Color.DimGray;
 
-                    spriteBatch.Draw(node, new Rectangle(x * (graph.VertW + graph.GapW), y * (graph.VertH + graph.GapH), graph.VertW, graph.VertH), color);
+                    spriteBatch.Draw(node, new Rectangle(
+                        x * (graph.VertW + graph.GapW), 
+                        y * (graph.VertH + graph.GapH), graph.VertW, graph.VertH), color);
                 }
+            }
+
+            if (start != null)
+            {
+                StringManager.DrawStringMid(spriteBatch, font, "S", new Vector2(
+                    start.Position.X * (graph.VertW + graph.GapW) + (graph.VertW / 2),
+                    start.Position.Y * (graph.VertH + graph.GapH) + (graph.VertH / 2)), Color.Firebrick, 1.0f);
+            }
+
+            if (goal != null)
+            {
+                StringManager.DrawStringMid(spriteBatch, font, "G", new Vector2(
+                    goal.Position.X * (graph.VertW + graph.GapW) + (graph.VertW / 2),
+                    goal.Position.Y * (graph.VertH + graph.GapH) + (graph.VertH / 2)), Color.Firebrick, 1.0f);
             }
 
             for (int i = 0; i < path.Count - 1; i++) // Draw Path
@@ -175,19 +200,16 @@ namespace Pathfinding
                 drawBatch.DrawLine(new Pen(Color.IndianRed, 8), pos0, pos1);
             }
 
-            button_A_Star.Draw(spriteBatch);
-            button_Dijkstra.Draw(spriteBatch);
-            button_BFS.Draw(spriteBatch);
-            button_DFS.Draw(spriteBatch);
-            button_FindPath.Draw(spriteBatch);
-            button_DelPath.Draw(spriteBatch);
-            button_ClearGrid.Draw(spriteBatch);
+            // DRAW HUD
+
+            buttons.ForEach(b => b.Draw(spriteBatch));
 
             StringManager.CameraDrawStringLeft(spriteBatch, font, "Path: " + currPath, new Vector2(160, 40), new Color(59, 76, 93), 0.9f);
             StringManager.CameraDrawStringLeft(spriteBatch, font, "Curr:", new Vector2(16, 300), new Color(59, 76, 93), 0.9f);
             StringManager.CameraDrawStringLeft(spriteBatch, font, "Start:", new Vector2(16, 340), new Color(59, 76, 93), 0.9f);
             StringManager.CameraDrawStringLeft(spriteBatch, font, "Goal: ", new Vector2(16, 380), new Color(59, 76, 93), 0.9f);
             StringManager.CameraDrawStringLeft(spriteBatch, font, "Cnt: ", new Vector2(16, 440), new Color(59, 76, 93), 0.9f);
+            StringManager.CameraDrawStringLeft(spriteBatch, font, "Dir: ", new Vector2(16, 480), new Color(59, 76, 93), 0.9f);
 
             if (current != null)
                 StringManager.CameraDrawStringLeft(spriteBatch, font, current.Position.X + "," + current.Position.Y, new Vector2(200, 300), new Color(59, 76, 93), 0.9f);
@@ -197,6 +219,7 @@ namespace Pathfinding
                 StringManager.CameraDrawStringLeft(spriteBatch, font, goal.Position.X + "," + goal.Position.Y, new Vector2(200, 380), new Color(59, 76, 93), 0.9f);
 
             StringManager.CameraDrawStringLeft(spriteBatch, font, path.Count.ToString(), new Vector2(200, 440), new Color(59, 76, 93), 0.9f);
+            StringManager.CameraDrawStringLeft(spriteBatch, font, dirPath, new Vector2(200, 480), new Color(59, 76, 93), 0.9f);
 
             spriteBatch.End();
             drawBatch.End();
@@ -250,10 +273,70 @@ namespace Pathfinding
                 }
             }
         }
+        private void EightDir(GameWindow window)
+        {
+            dirPath = "8-Dir";
+
+            for (int y = 0; y < graph.Height; ++y)
+            {
+                for (int x = 0; x < graph.Width; ++x)
+                {
+                    Vertex vert = graph.AtPos(x, y);
+
+                    if (vert.EdgeCount == 8 || vert.EdgeCount == 0)
+                        continue;
+
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        for (int j = -1; j <= 1; j += 2)
+                        {
+                            if (graph.WithinBoard(vert.Position.X + j, vert.Position.Y + i))
+                            {
+                                new Edge(vert, graph.AtPos(vert.Position.X + j, vert.Position.Y + i));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private void FourDir(GameWindow window)
+        {
+            dirPath = "4-Dir";
+
+            for (int y = 0; y < graph.Height; ++y)
+            {
+                for (int x = 0; x < graph.Width; ++x)
+                {
+                    Vertex vert = graph.AtPos(x, y);
+
+                    if (vert.EdgeCount == 4 || vert.EdgeCount == 0)
+                        continue;
+
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        for (int j = -1; j <= 1; j += 2)
+                        {
+                            if (!graph.WithinBoard(vert.Position.X + j, vert.Position.Y + i))
+                                continue;
+
+                            Vertex neigh = graph.AtPos(vert.Position.X + j, vert.Position.Y + i);
+                            for (int k = vert.EdgeCount - 1; k >= 0; --k)
+                            {
+                                if (vert.Edges[k].To == neigh)
+                                    vert.RemoveEdge(vert.Edges[k]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         private void AddWall(Vertex vertex)
         {
-            if (vertex == goal || vertex == null || vertex.EdgeCount == 0)
+            if (vertex == null || vertex.EdgeCount == 0)
+                return;
+
+            if (vertex == start || vertex == goal)
                 return;
 
             vertex.Edges.Clear();
@@ -270,10 +353,10 @@ namespace Pathfinding
                     if (y == 0 && x == 0)
                         continue;
 
-                    if (graph.WithinBoard(vertex.Position.X + x, vertex.Position.Y + y))
-                    {
-                        new Edge(vertex, graph.AtPos(vertex.Position.X + x, vertex.Position.Y + y));
-                    }
+                    if (!graph.WithinBoard(vertex.Position.X + x, vertex.Position.Y + y))
+                        continue;
+
+                    new Edge(vertex, graph.AtPos(vertex.Position.X + x, vertex.Position.Y + y));
                 }
             }
         }
