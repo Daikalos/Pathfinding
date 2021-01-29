@@ -117,7 +117,7 @@ namespace Pathfinding
         protected override void Update(GameTime gameTime)
         {
             KeyMouseReader.Update();
-            Camera.MoveCamera(gameTime);
+            Camera.Update(gameTime);
 
             buttons.ForEach(b => b.Update(Window));
 
@@ -155,9 +155,9 @@ namespace Pathfinding
             GraphicsDevice.Clear(Color.DodgerBlue);
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.AnisotropicClamp, null, null, null, Camera.TranslationMatrix);
+                SamplerState.AnisotropicClamp, null, null, null, Camera.WorldMatrix);
             drawBatch.Begin(DrawSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.AnisotropicClamp, null, null, null, Camera.TranslationMatrix);
+                SamplerState.AnisotropicClamp, null, null, null, Camera.WorldMatrix);
 
             // DRAW LEVEL
 

@@ -6,18 +6,16 @@ namespace Window.Camera
 {
     static class Camera
     {
-        private static Vector2 
+        private static Vector2
             position,
             viewportSize,
             zoomLimit;
-        private static Point 
-            mouseOldPosition;
-        private static float 
+        private static Point mouseOldPosition;
+        private static float
             moveSpeed,
-            zoom,
-            zoomValue;
+            zoom, zoomValue;
 
-        public static Matrix TranslationMatrix
+        public static Matrix WorldMatrix
         {
             get
             {
@@ -25,6 +23,17 @@ namespace Window.Camera
                     Matrix.CreateTranslation(new Vector3(-position, 0)) *
                     Matrix.CreateScale(zoom, zoom, 1.0f) *
                     Matrix.CreateTranslation(new Vector3(ViewportCenter, 0));
+            }
+        }
+
+        public static Matrix ViewMatrix
+        {
+            get
+            {
+                return
+                    Matrix.CreateTranslation(new Vector3(-ViewportCenter, 0)) *
+                    Matrix.CreateScale(1.0f / zoom, 1.0f / zoom, 1.0f) *
+                    Matrix.CreateTranslation(new Vector3(position, 0));
             }
         }
 
@@ -67,7 +76,7 @@ namespace Window.Camera
             zoom = 1.0f;
         }
 
-        public static void MoveCamera(GameTime gameTime)
+        public static void Update(GameTime gameTime)
         {
             MouseMovement();
             KeyboardMovement(gameTime);
@@ -81,10 +90,8 @@ namespace Window.Camera
             }
             if (KeyMouseReader.MiddleMouseHold() && mouseOldPosition != Point.Zero)
             {
-                Point newPos = ViewToWorld(KeyMouseReader.MousePos.ToVector2()).ToPoint();
-                Point deltaPos = mouseOldPosition - newPos;
-
-                position += deltaPos.ToVector2();
+                Point dragPos = ViewToWorld(KeyMouseReader.MousePos.ToVector2()).ToPoint();
+                position += (mouseOldPosition - dragPos).ToVector2();
             }
 
             if (KeyMouseReader.ScrollUp())
@@ -129,13 +136,13 @@ namespace Window.Camera
             }
         }
 
-        public static Vector2 ViewToWorld(Vector2 position)
+        public static Vector2 ViewToWorld(Vector2 vector)
         {
-            return Vector2.Transform(position, Matrix.Invert(TranslationMatrix));
+            return Vector2.Transform(vector, ViewMatrix);
         }
-        public static Point ViewToWorld(Point position)
+        public static Point ViewToWorld(Point point)
         {
-            return Vector2.Transform(position.ToVector2(), Matrix.Invert(TranslationMatrix)).ToPoint();
+            return Vector2.Transform(point.ToVector2(), ViewMatrix).ToPoint();
         }
     }
 }
