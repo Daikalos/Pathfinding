@@ -8,20 +8,10 @@ public class Graph
     public int Width { get; private set; }
     public int Height { get; private set; }
 
-    public int VertW { get; private set; }
-    public int VertH { get; private set; }
-
-    public int GapW { get; private set; }
-    public int GapH { get; private set; }
-
-    public Graph(int width, int height, int vertW, int vertH, int gapW, int gapH)
+    public Graph(int width, int height)
     {
         Width = width;
         Height = height;
-        VertW = vertW;
-        VertH = vertH;
-        GapW = gapW;
-        GapH = gapH;
 
         Vertices = new Vertex[Width * Height];
     }
@@ -34,16 +24,6 @@ public class Graph
     {
         return Vertices[pos.X + pos.Y * Width];
     }
-    public Vertex AtMousePos(Point pos)
-    {
-        int x = (pos.X / (VertW + GapW));
-        int y = (pos.Y / (VertH + GapH));
-
-        if (!WithinBoard(x, y))
-            return null;
-
-        return Vertices[x + y * Width];
-    }
 
     public bool WithinBoard(int x, int y)
     {
@@ -51,7 +31,7 @@ public class Graph
     }
     public bool WithinBoard(Point pos)
     {
-        return !(pos.X < 0 || pos.Y < 0 || pos.X >= Width || pos.Y >= Height);
+        return WithinBoard(pos.X, pos.Y);
     }
 
     public static float ManhattanDistance(Vertex from, Vertex to)
@@ -75,16 +55,16 @@ public class Graph
         }
     }
 
-    public void GenerateGraph()
+    public void Generate()
     {
         AddVertices();
         AddEdges();
     }
     private void AddVertices()
     {
-        for (int y = 0; y < Height; y++) // Add all vertices
+        for (int y = 0; y < Height; ++y) // Add all vertices
         {
-            for (int x = 0; x < Width; x++)
+            for (int x = 0; x < Width; ++x)
             {
                 Vertices[x + y * Width] = new Vertex(new Point(x, y));
             }

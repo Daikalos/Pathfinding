@@ -42,12 +42,14 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="src\Game\Button.cs" />
+    <Compile Include="src\Game\Map.cs" />
+    <Compile Include="src\UI\Button.cs" />
     <Compile Include="src\Game\GameObject.cs" />
+    <Compile Include="src\Game\Tile.cs" />
     <Compile Include="src\Graph\Edge.cs" />
     <Compile Include="src\Graph\Graph.cs" />
     <Compile Include="src\Graph\Vertex.cs" />
-    <Compile Include="src\Game\Main.cs" />
+    <Compile Include="src\Game\MainGame.cs" />
     <Compile Include="src\Pathfinders\TreeStructure\MaxHeap.cs" />
     <Compile Include="src\Pathfinders\TreeStructure\MinHeap.cs" />
     <Compile Include="src\Pathfinders\TreeStructure\PriorityQueue.cs" />

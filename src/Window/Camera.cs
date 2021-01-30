@@ -2,20 +2,22 @@
 using Microsoft.Xna.Framework.Input;
 using Utilities;
 
-namespace Window.Camera
+namespace Window
 {
-    static class Camera
+    class Camera
     {
-        private static Vector2
+        private Vector2
             position,
             viewportSize,
             zoomLimit;
-        private static Point mouseOldPosition;
-        private static float
-            moveSpeed,
-            zoom, zoomValue;
+        private Point dragPos;
+        private float
+            speed,     // speed when using keyboard
+            rotation,  // z-rotation of camera
+            zoom,      // current zoom of camera
+            deltaZoom; // How much zoom changes per scroll
 
-        public static Matrix WorldMatrix
+        public Matrix WorldMatrixNoRotation
         {
             get
             {
@@ -26,121 +28,126 @@ namespace Window.Camera
             }
         }
 
-        public static Matrix ViewMatrix
+        public Matrix WorldMatrix
+        {
+            get
+            {
+                return
+                    Matrix.CreateTranslation(new Vector3(-position, 0)) *
+                    Matrix.CreateRotationZ(rotation) *
+                    Matrix.CreateScale(zoom, zoom, 1.0f) *
+                    Matrix.CreateTranslation(new Vector3(ViewportCenter, 0));
+            }
+        }
+
+        public Matrix ViewMatrix
         {
             get
             {
                 return
                     Matrix.CreateTranslation(new Vector3(-ViewportCenter, 0)) *
                     Matrix.CreateScale(1.0f / zoom, 1.0f / zoom, 1.0f) *
+                    Matrix.Transpose(Matrix.CreateRotationZ(rotation)) *
                     Matrix.CreateTranslation(new Vector3(position, 0));
             }
         }
 
-        public static Vector2 Position
-        {
-            get => position;
-            set => position = value;
-        }
-        public static Vector2 TopLeftCorner
-        {
-            get => position - ViewportCenter * (1 / zoom);
-        }
-        public static Vector2 ViewportCenter
-        {
-            get => new Vector2(viewportSize.X / 2, viewportSize.Y / 2);
-        }
+        public Vector2 TopLeftCorner  => position - ViewportCenter * (1 / zoom);
+        public Vector2 ViewportCenter => new Vector2(viewportSize.X / 2, viewportSize.Y / 2);
 
-        public static float Zoom
-        {
-            get => zoom;
-        }
+        public float Zoom => zoom;
 
-        public static void Initialize(GameWindow window, float speed)
+        public Camera(GameWindow window, Vector2 zoomLimit, float speed, float rotation, float deltaZoom)
         {
+            this.zoomLimit = zoomLimit;
+            this.speed = speed;
+            this.rotation = rotation;
+            this.deltaZoom = deltaZoom;
+
             viewportSize = window.ClientBounds.Size.ToVector2();
             position = ViewportCenter;
-            zoomLimit = new Vector2(0.25f, 4.0f);
 
-            mouseOldPosition = Point.Zero;
+            dragPos = Point.Zero;
 
-            moveSpeed = speed;
             zoom = 1.0f;
-            zoomValue = 0.05f;
         }
 
-        public static void Reset()
+        public void Reset()
         {
             position = ViewportCenter;
-            mouseOldPosition = Point.Zero;
+            dragPos = Point.Zero;
             zoom = 1.0f;
         }
 
-        public static void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             MouseMovement();
             KeyboardMovement(gameTime);
         }
 
-        private static void MouseMovement()
+        private void MouseMovement()
         {
+            // -- Camera Drag --
+
             if (KeyMouseReader.MiddleMouseClick())
             {
-                mouseOldPosition = ViewToWorld(KeyMouseReader.MousePos.ToVector2()).ToPoint();
+                dragPos = ViewToWorld(KeyMouseReader.MousePos.ToVector2()).ToPoint();
             }
-            if (KeyMouseReader.MiddleMouseHold() && mouseOldPosition != Point.Zero)
+            if (KeyMouseReader.MiddleMouseHold() && dragPos != Point.Zero)
             {
-                Point dragPos = ViewToWorld(KeyMouseReader.MousePos.ToVector2()).ToPoint();
-                position += (mouseOldPosition - dragPos).ToVector2();
+                Point deltaDragPos = ViewToWorld(KeyMouseReader.MousePos.ToVector2()).ToPoint();
+                position += (dragPos - deltaDragPos).ToVector2();
             }
+
+            // -- Camera Zoom --
 
             if (KeyMouseReader.ScrollUp())
             {
-                zoom += zoomValue;
+                zoom += deltaZoom;
                 zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
             if (KeyMouseReader.ScrollDown())
             {
-                zoom -= zoomValue;
+                zoom -= deltaZoom;
                 zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
         }
-        private static void KeyboardMovement(GameTime gameTime)
+        private void KeyboardMovement(GameTime gameTime)
         {
             if (KeyMouseReader.KeyHold(Keys.Up))
             {
-                position.Y -= moveSpeed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.Y -= speed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             if (KeyMouseReader.KeyHold(Keys.Down))
             {
-                position.Y += moveSpeed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.Y += speed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             if (KeyMouseReader.KeyHold(Keys.Left))
             {
-                position.X -= moveSpeed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.X -= speed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
             if (KeyMouseReader.KeyHold(Keys.Right))
             {
-                position.X += moveSpeed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.X += speed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
             if (KeyMouseReader.KeyHold(Keys.OemPlus))
             {
-                zoom += zoomValue / 2;
+                zoom += deltaZoom / 2;
                 zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
             if (KeyMouseReader.KeyHold(Keys.OemMinus))
             {
-                zoom -= zoomValue / 2;
+                zoom -= deltaZoom / 2;
                 zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
         }
 
-        public static Vector2 ViewToWorld(Vector2 vector)
+        public Vector2 ViewToWorld(Vector2 vector)
         {
             return Vector2.Transform(vector, ViewMatrix);
         }
-        public static Point ViewToWorld(Point point)
+        public Point ViewToWorld(Point point)
         {
             return Vector2.Transform(point.ToVector2(), ViewMatrix).ToPoint();
         }

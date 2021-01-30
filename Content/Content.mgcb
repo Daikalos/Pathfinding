@@ -23,7 +23,7 @@
 #begin Fonts/8bit16.ttf
 /copy:Fonts/8bit16.ttf
 
-#begin Sprites/border_long.png
+#begin Sprites/button_small.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -33,9 +33,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/border_long.png
+/build:Sprites/button_small.png
 
-#begin Sprites/border_short.png
+#begin Sprites/button_wide.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -45,7 +45,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/border_short.png
+/build:Sprites/button_wide.png
 
 #begin Sprites/node.png
 /importer:TextureImporter

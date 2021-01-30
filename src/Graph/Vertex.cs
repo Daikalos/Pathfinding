@@ -10,6 +10,9 @@ public class Vertex
     public Vertex Parent { get; set; }
     public Point Position { get; private set; }
 
+    public int X => Position.X;
+    public int Y => Position.Y;
+
     public bool IsVisited { get; set; }
 
     public float F => G + H;     // Total Cost
@@ -30,11 +33,14 @@ public class Vertex
         H = float.PositiveInfinity;
     }
 
+    public void ClearEdges()
+    {
+        Edges.Clear();
+    }
     public void AddEdge(Edge edge)
     {
         Edges.Add(edge);
     }
-
     public void RemoveEdge(Edge edge)
     {
         Edges.Remove(edge);
