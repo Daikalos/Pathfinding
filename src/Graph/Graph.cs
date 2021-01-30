@@ -16,45 +16,6 @@ public class Graph
         Vertices = new Vertex[Width * Height];
     }
 
-    public Vertex AtPos(int x, int y)
-    {
-        return Vertices[x + y * Width];
-    }
-    public Vertex AtPos(Point pos)
-    {
-        return Vertices[pos.X + pos.Y * Width];
-    }
-
-    public bool WithinBoard(int x, int y)
-    {
-        return !(x < 0 || y < 0 || x >= Width || y >= Height);
-    }
-    public bool WithinBoard(Point pos)
-    {
-        return WithinBoard(pos.X, pos.Y);
-    }
-
-    public static float ManhattanDistance(Vertex from, Vertex to)
-    {
-        return Math.Abs(from.Position.X - to.Position.X) +
-               Math.Abs(from.Position.Y - to.Position.Y);
-    }
-    public static float DiagonalDistance(Vertex from, Vertex to)
-    {
-        return (float)Math.Sqrt(Math.Pow(from.Position.X - to.Position.X, 2) + 
-                                Math.Pow(from.Position.Y - to.Position.Y, 2));
-    }
-
-    public void InitializeVertices()
-    {
-        foreach (Vertex vertex in Vertices)
-        {
-            vertex.IsVisited = false;
-            vertex.G = float.PositiveInfinity;
-            vertex.H = float.PositiveInfinity;
-        }
-    }
-
     public void Generate()
     {
         AddVertices();
@@ -94,5 +55,44 @@ public class Graph
                 }
             }
         }
+    }
+
+    public void InitializeVertices()
+    {
+        foreach (Vertex vertex in Vertices)
+        {
+            vertex.IsVisited = false;
+            vertex.G = float.PositiveInfinity;
+            vertex.H = float.PositiveInfinity;
+        }
+    }
+
+    public Vertex AtPos(int x, int y)
+    {
+        return Vertices[x + y * Width];
+    }
+    public Vertex AtPos(Point pos)
+    {
+        return Vertices[pos.X + pos.Y * Width];
+    }
+
+    public bool WithinBoard(int x, int y)
+    {
+        return !(x < 0 || y < 0 || x >= Width || y >= Height);
+    }
+    public bool WithinBoard(Point pos)
+    {
+        return WithinBoard(pos.X, pos.Y);
+    }
+
+    public static float ManhattanDistance(Vertex from, Vertex to)
+    {
+        return Math.Abs(from.Position.X - to.Position.X) +
+               Math.Abs(from.Position.Y - to.Position.Y);
+    }
+    public static float DiagonalDistance(Vertex from, Vertex to)
+    {
+        return (float)Math.Sqrt(Math.Pow(from.Position.X - to.Position.X, 2) + 
+                                Math.Pow(from.Position.Y - to.Position.Y, 2));
     }
 }

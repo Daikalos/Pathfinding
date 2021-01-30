@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Pathfinding
 {
-    class Map
+    class Grid
     {
         private readonly List<Tile> tiles
             = new List<Tile>();
@@ -25,8 +22,13 @@ namespace Pathfinding
 
         public int TileWidth => tileWidth;
         public int TileHeight => tileHeight;
+        public int TileGapWidth => tileGapWidth;
+        public int TileGapHeight => tileGapHeight;
 
-        public Map(Graph graph, int tileWidth, int tileHeight, int tileGapWidth, int tileGapHeight)
+        public bool EightDirectional => eightDirectional;
+        public bool FourDirectional => fourDirectional;
+
+        public Grid(Graph graph, int tileWidth, int tileHeight, int tileGapWidth, int tileGapHeight)
         {
             this.graph = graph;
             this.tileWidth = tileWidth;
@@ -38,12 +40,24 @@ namespace Pathfinding
             fourDirectional = false;
         }
 
-        public void RemoveWall(Tile tile)
+        public void Generate()
         {
-            if (eightDirectional)
-                MakeEightDirectional(tile);
-            else if (fourDirectional)
-                MakeFourDirectional(tile);
+            for (int y = 0; y < graph.Height; ++y)
+            {
+                for (int x = 0; x < graph.Width; ++x)
+                {
+                    tiles.Add(new Tile(
+                        new Vector2(
+                            x * (tileWidth + tileGapWidth),
+                            y * (tileHeight + tileGapHeight)),
+                        new Point(tileWidth, tileHeight), this, graph, graph.AtPos(x, y)));
+                }
+            }
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            tiles.ForEach(t => t.Draw(spriteBatch));
         }
 
         public void MakeEightDirectional()
@@ -60,7 +74,8 @@ namespace Pathfinding
                     if (tile.IsWall)
                         continue;
 
-                    MakeEightDirectional(tile);
+                    tile.MakeEightDirectional();
+                    tile.Update();
                 }
             }
 
@@ -81,65 +96,13 @@ namespace Pathfinding
                     if (tile.IsWall)
                         continue;
 
-                    MakeFourDirectional(tile);
+                    tile.MakeFourDirectional();
+                    tile.Update();
                 }
             }
 
             fourDirectional = true;
             eightDirectional = false;
-        }
-
-        public void MakeEightDirectional(Tile tile)
-        {
-            tile.Vertex.ClearEdges();
-
-            for (int y = -1; y <= 1; ++y)
-            {
-                for (int x = -1; x <= 1; ++x)
-                {
-                    if (x == 0 && y == 0)
-                        continue;
-
-                    Vertex vertex = tile.Vertex;
-
-                    if (!graph.WithinBoard(vertex.X + x, vertex.Y + y))
-                        continue;
-
-                    new Edge(vertex, graph.AtPos(vertex.X + x, vertex.Y + y));
-                }
-            }
-        }
-        public void MakeFourDirectional(Tile tile)
-        {
-            tile.Vertex.ClearEdges();
-
-            for (int y = -1; y <= 1; y += 2)
-            {
-                for (int x = -1; x <= 1; x += 2)
-                {
-                    Vertex vertex = tile.Vertex;
-
-                    if (!graph.WithinBoard(vertex.X + x, vertex.Y + y))
-                        continue;
-
-                    new Edge(vertex, graph.AtPos(vertex.X + x, vertex.Y + y));
-                }
-            }
-        }
-
-        public void Generate()
-        {
-            for (int y = 0; y < graph.Height; ++y)
-            {
-                for (int x = 0; x < graph.Width; ++x)
-                {
-                    tiles.Add(new Tile(
-                        new Vector2(
-                            x * (tileWidth + tileGapWidth), 
-                            y * (tileHeight + tileGapHeight)), 
-                        new Point(tileWidth, tileHeight), graph.AtPos(x, y)));
-                }
-            }
         }
 
         public Tile AtPos(int x, int y)
@@ -155,6 +118,11 @@ namespace Pathfinding
                 return null;
 
             return tiles[x + y * graph.Width];
+        }
+
+        public void LoadContent()
+        {
+            tiles.ForEach(t => t.LoadContent());
         }
     }
 }

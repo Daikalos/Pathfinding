@@ -23,7 +23,7 @@ namespace Pathfinding
         private SpriteFont font;
 
         private Graph graph;
-        private Map map;
+        private Grid grid;
 
         private List<Vertex> path;
         private Tile current, start, goal;
@@ -78,8 +78,8 @@ namespace Pathfinding
             graph = new Graph(64, 64);
             graph.Generate();
 
-            map = new Map(graph, 32, 32, 4, 4);
-            map.Generate();
+            grid = new Grid(graph, 32, 32, 4, 4);
+            grid.Generate();
 
             path = new List<Vertex>();
 
@@ -102,6 +102,7 @@ namespace Pathfinding
 
             ResourceManager.AddFont("8bit", this.Content.Load<SpriteFont>("Fonts/8bit"));
 
+            grid.LoadContent();
             buttons.ForEach(b => b.LoadContent());
 
             font = ResourceManager.RequestFont("8bit");
@@ -120,23 +121,26 @@ namespace Pathfinding
             buttons.ForEach(b => b.Update(Window));
 
             Point mousePos = camera.ViewToWorld(KeyMouseReader.MousePos);
-            current = map.AtMousePos(mousePos);
+            current = grid.AtMousePos(mousePos);
 
-            if (KeyMouseReader.KeyPressed(Keys.Q))
+            if (current != null)
             {
-                if (!current.IsWall)
-                    start = current;
-            }
-            if (KeyMouseReader.KeyPressed(Keys.E))
-            {
-                if (!current.IsWall)
-                    goal = current;
-            }
+                if (KeyMouseReader.KeyPressed(Keys.Q))
+                {
+                    if (!current.IsWall)
+                        start = current;
+                }
+                if (KeyMouseReader.KeyPressed(Keys.E))
+                {
+                    if (!current.IsWall)
+                        goal = current;
+                }
 
-            if (KeyMouseReader.LeftHold())
-                RemoveWall(current);
-            if (KeyMouseReader.RightHold())
-                AddWall(current);
+                if (KeyMouseReader.LeftHold())
+                    RemoveWall(current);
+                if (KeyMouseReader.RightHold())
+                    AddWall(current);
+            }
 
             base.Update(gameTime);
         }
@@ -147,47 +151,27 @@ namespace Pathfinding
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
+            drawBatch.Begin(DrawSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
 
             // DRAW LEVEL
 
-            for (int y = 0; y < graph.Height; ++y)
-            {
-                for (int x = 0; x < graph.Width; ++x) // Draw Grid
-                {
-                    bool isWall = (graph.AtPos(new Point(x, y)).EdgeCount == 0);
-                    Color color = (!isWall) ? Color.LightGray : Color.DimGray;
-
-                    spriteBatch.Draw(node, new Rectangle(
-                        x * (graph.VertW + graph.GapW), 
-                        y * (graph.VertH + graph.GapH), graph.VertW, graph.VertH), color);
-                }
-            }
+            grid.Draw(spriteBatch);
 
             if (start != null)
-            {
-                StringManager.DrawStringMid(spriteBatch, font, "S", new Vector2(
-                    start.Position.X * (graph.VertW + graph.GapW) + (graph.VertW / 2),
-                    start.Position.Y * (graph.VertH + graph.GapH) + (graph.VertH / 2)), Color.Firebrick, 1.0f);
-            }
+                StringManager.DrawStringMid(spriteBatch, font, "S", start.Middle, Color.Firebrick, 1.0f);
 
             if (goal != null)
-            {
-                StringManager.DrawStringMid(spriteBatch, font, "G", new Vector2(
-                    goal.Position.X * (graph.VertW + graph.GapW) + (graph.VertW / 2),
-                    goal.Position.Y * (graph.VertH + graph.GapH) + (graph.VertH / 2)), Color.Firebrick, 1.0f);
-            }
-
-            drawBatch.Begin(DrawSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
+                StringManager.DrawStringMid(spriteBatch, font, "G", goal.Middle, Color.Firebrick, 1.0f);
 
             for (int i = 0; i < path.Count - 1; i++) // Draw Path
             {
                 Vector2 pos0 = new Vector2(
-                    path[i].Position.X * (graph.VertW + graph.GapW) + (graph.VertW / 2), 
-                    path[i].Position.Y * (graph.VertH + graph.GapH) + (graph.VertH / 2));
+                    path[i].Position.X * (grid.TileWidth + grid.TileGapWidth) + (grid.TileWidth / 2), 
+                    path[i].Position.Y * (grid.TileHeight + grid.TileGapHeight) + (grid.TileHeight / 2));
                 Vector2 pos1 = new Vector2(
-                    path[i + 1].Position.X * (graph.VertW + graph.GapW) + (graph.VertW / 2), 
-                    path[i + 1].Position.Y * (graph.VertH + graph.GapH) + (graph.VertH / 2));
+                    path[i + 1].Position.X * (grid.TileWidth + grid.TileGapWidth) + (grid.TileWidth / 2), 
+                    path[i + 1].Position.Y * (grid.TileHeight + grid.TileGapHeight) + (grid.TileHeight / 2));
 
                 drawBatch.DrawLine(new Pen(Color.IndianRed, 8), pos0, pos1);
             }
@@ -206,11 +190,11 @@ namespace Pathfinding
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Dir: ", new Vector2(16, 480), new Color(59, 76, 93), 0.9f);
 
             if (current != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, current.Position.X + "," + current.Position.Y, new Vector2(200, 300), new Color(59, 76, 93), 0.9f);
+                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, current.X + "," + current.Y, new Vector2(200, 300), new Color(59, 76, 93), 0.9f);
             if (start != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, start.Position.X + "," + start.Position.Y, new Vector2(200, 340), new Color(59, 76, 93), 0.9f);
+                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, start.X + "," + start.Y, new Vector2(200, 340), new Color(59, 76, 93), 0.9f);
             if (goal != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, goal.Position.X + "," + goal.Position.Y, new Vector2(200, 380), new Color(59, 76, 93), 0.9f);
+                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, goal.X + "," + goal.Y, new Vector2(200, 380), new Color(59, 76, 93), 0.9f);
 
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, path.Count.ToString(), new Vector2(200, 440), new Color(59, 76, 93), 0.9f);
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, dirPath, new Vector2(200, 480), new Color(59, 76, 93), 0.9f);
@@ -262,19 +246,19 @@ namespace Pathfinding
             {
                 for (int x = 0; x < graph.Width; ++x)
                 {
-                    RemoveWall(map.AtPos(x, y));
+                    RemoveWall(grid.AtPos(x, y));
                 }
             }
         }
         private void EightDir(GameWindow window)
         {
             dirPath = "8-Dir";
-            map.MakeEightDirectional();
+            grid.MakeEightDirectional();
         }
         private void FourDir(GameWindow window)
         {
             dirPath = "4-Dir";
-            map.MakeFourDirectional();
+            grid.MakeFourDirectional();
         }
 
         private void AddWall(Tile tile)
@@ -282,26 +266,11 @@ namespace Pathfinding
             if (tile == null || tile.IsWall || tile == start || tile == goal)
                 return;
 
-            tile.Vertex.Edges.Clear();
+            tile.AddWall();
         }
         private void RemoveWall(Tile tile)
         {
-            if (tile == null || !tile.IsWall)
-                return;
-
-            for (int y = -1; y <= 1; ++y) // Left and Right
-            {
-                for (int x = -1; x <= 1; ++x) //Top and Bottom
-                {
-                    if (y == 0 && x == 0)
-                        continue;
-
-                    if (!graph.WithinBoard(vertex.Position.X + x, vertex.Position.Y + y))
-                        continue;
-
-                    new Edge(vertex, graph.AtPos(vertex.Position.X + x, vertex.Position.Y + y));
-                }
-            }
+            tile.RemoveWall();
         }
     }
 }
