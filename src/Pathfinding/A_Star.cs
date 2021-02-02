@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Graph;
 
 namespace Pathfinding
 {
     class A_Star : IPathfinder
     {
-        public List<Vertex> PathTo(Graph graph, Vertex start, Vertex goal)
+        public List<Vertex> PathTo(Grid grid, WGraph graph, Vertex start, Vertex goal)
         {
             PriorityQueue<Vertex> open = new MinHeap<Vertex>();
-
+            
             graph.InitializeVertices();
 
             Vertex current = start;
@@ -23,6 +26,16 @@ namespace Pathfinding
                 {
                     current.IsVisited = true;
 
+                    // Visualization
+                    {
+                        Thread.Sleep(1);
+
+                        Tile tile = grid.AtPos(current.Position);
+
+                        if (!tile.IsWall)
+                            tile.Color = Color.AliceBlue;
+                    }
+
                     if (current.Equals(goal))
                         return FindPath(start, goal);
 
@@ -34,10 +47,13 @@ namespace Pathfinding
                         if (gScore < neighbour.G)
                         {
                             neighbour.G = gScore;
-                            neighbour.H = Graph.DiagonalDistance(neighbour, goal);
+                            if (grid.EightDirectional) 
+                                neighbour.H = WGraph.DiagonalDistance(neighbour, goal);
+                            if (grid.FourDirectional) 
+                                neighbour.H = WGraph.ManhattanDistance(neighbour, goal);
 
                             neighbour.Parent = current;
-                            
+
                             if (!open.Contains(neighbour))
                                 open.Enqueue(neighbour, neighbour.F);
                         }

@@ -1,27 +1,28 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Utilities;
+using Graph;
 
 namespace Pathfinding
 {
     class Tile : GameObject
     {
-        private readonly Grid Grid;
-        private readonly Graph graph;
+        private readonly Grid grid;
+        private readonly WGraph graph;
         private readonly Vertex vertex;
 
         private Color color;
         private bool isWall;
 
         public Vertex Vertex => vertex;
+        public Color Color { get => color; set => color = value; }
         public bool IsWall => isWall;
 
         public int X => vertex.X;
         public int Y => vertex.Y;
 
-        public Tile(Vector2 position, Point size, Grid Grid, Graph graph, Vertex vertex) : base(position, size)
+        public Tile(Vector2 position, Point size, Grid grid, WGraph graph, Vertex vertex) : base(position, size)
         {
-            this.Grid = Grid;
+            this.grid = grid;
             this.graph = graph;
             this.vertex = vertex;
 
@@ -51,9 +52,9 @@ namespace Pathfinding
             if (!isWall)
                 return;
 
-            if (Grid.EightDirectional)
+            if (grid.EightDirectional)
                 MakeEightDirectional();
-            else if (Grid.FourDirectional)
+            else if (grid.FourDirectional)
                 MakeFourDirectional();
 
             Update();
@@ -61,7 +62,7 @@ namespace Pathfinding
 
         public void MakeEightDirectional()
         {
-            Vertex.ClearEdges();
+            vertex.ClearEdges();
 
             for (int y = -1; y <= 1; ++y)
             {
@@ -79,17 +80,21 @@ namespace Pathfinding
         }
         public void MakeFourDirectional()
         {
-            Vertex.ClearEdges();
+            vertex.ClearEdges();
 
             for (int y = -1; y <= 1; y += 2)
             {
-                for (int x = -1; x <= 1; x += 2)
-                {
-                    if (!graph.WithinBoard(vertex.X + x, vertex.Y + y))
-                        continue;
+                if (!graph.WithinBoard(vertex.X, vertex.Y + y))
+                    continue;
 
-                    new Edge(vertex, graph.AtPos(vertex.X + x, vertex.Y + y));
-                }
+                new Edge(vertex, graph.AtPos(vertex.X, vertex.Y + y));
+            }
+            for (int x = -1; x <= 1; x += 2)
+            {
+                if (!graph.WithinBoard(vertex.X + x, vertex.Y))
+                    continue;
+
+                new Edge(vertex, graph.AtPos(vertex.X + x, vertex.Y));
             }
         }
 

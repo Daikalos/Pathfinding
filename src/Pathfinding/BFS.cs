@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Graph;
 
 namespace Pathfinding
 {
     class BFS : IPathfinder
     {
-        public List<Vertex> PathTo(Graph graph, Vertex start, Vertex goal)
+        public List<Vertex> PathTo(Grid grid, WGraph graph, Vertex start, Vertex goal)
         {
             Queue<Vertex> open = new Queue<Vertex>();
 
@@ -19,6 +22,16 @@ namespace Pathfinding
             {
                 current = open.Dequeue();
 
+                // Visualization
+                {
+                    Thread.Sleep(1);
+
+                    Tile tile = grid.AtPos(current.Position);
+
+                    if (!tile.IsWall)
+                        tile.Color = Color.AliceBlue;
+                }
+
                 if (current.Equals(goal))
                     return FindPath(start, goal);
 
@@ -30,7 +43,7 @@ namespace Pathfinding
                     {
                         neighbour.IsVisited = true;
                         neighbour.Parent = current;
-                        
+
                         if (!open.Contains(neighbour))
                             open.Enqueue(neighbour);
                     }

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Utilities;
 using LilyPath;
+using Graph;
 using Window;
 using UI;
 
@@ -17,15 +19,17 @@ namespace Pathfinding
         private SpriteBatch spriteBatch;
         private DrawBatch drawBatch;
 
+        private Thread findPathThread;
+
         private List<Button> buttons;
         private Camera camera;
 
         private SpriteFont font;
 
-        private Graph graph;
+        private WGraph graph;
         private Grid grid;
 
-        private List<Vertex> path;
+        private List<Tile> path;
         private Tile current, start, goal;
 
         private IPathfinder pathfinder;
@@ -75,13 +79,13 @@ namespace Pathfinding
                     ButtonType.Small, ClearGrid, "Clear", 0.6f, 1.0f, 1.05f)
             };
 
-            graph = new Graph(64, 64);
+            graph = new WGraph(64, 64);
             graph.Generate();
 
             grid = new Grid(graph, 32, 32, 4, 4);
             grid.Generate();
 
-            path = new List<Vertex>();
+            path = new List<Tile>();
 
             pathfinder = null;
             currPath = string.Empty;
@@ -147,36 +151,34 @@ namespace Pathfinding
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DodgerBlue);
-
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
-            drawBatch.Begin(DrawSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
+            GraphicsDevice.Clear(Color.CadetBlue);
 
             // DRAW LEVEL
 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
+
             grid.Draw(spriteBatch);
 
-            if (start != null)
-                StringManager.DrawStringMid(spriteBatch, font, "S", start.Middle, Color.Firebrick, 1.0f);
+            spriteBatch.End();
 
-            if (goal != null)
-                StringManager.DrawStringMid(spriteBatch, font, "G", goal.Middle, Color.Firebrick, 1.0f);
+            drawBatch.Begin(DrawSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
 
             for (int i = 0; i < path.Count - 1; i++) // Draw Path
-            {
-                Vector2 pos0 = new Vector2(
-                    path[i].Position.X * (grid.TileWidth + grid.TileGapWidth) + (grid.TileWidth / 2), 
-                    path[i].Position.Y * (grid.TileHeight + grid.TileGapHeight) + (grid.TileHeight / 2));
-                Vector2 pos1 = new Vector2(
-                    path[i + 1].Position.X * (grid.TileWidth + grid.TileGapWidth) + (grid.TileWidth / 2), 
-                    path[i + 1].Position.Y * (grid.TileHeight + grid.TileGapHeight) + (grid.TileHeight / 2));
-
-                drawBatch.DrawLine(new Pen(Color.IndianRed, 8), pos0, pos1);
-            }
+                drawBatch.DrawLine(new Pen(new Color(0, 255, 0, 180), 8), path[i].Middle, path[i + 1].Middle);
 
             drawBatch.End();
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
+
+            if (start != null)
+                StringManager.DrawStringMid(spriteBatch, font, "S", start.Middle, Color.Red, 1.0f);
+
+            if (goal != null)
+                StringManager.DrawStringMid(spriteBatch, font, "G", goal.Middle, Color.Red, 1.0f);
+
 
             // -- USER INTERFACE --
 
@@ -230,7 +232,17 @@ namespace Pathfinding
             if (pathfinder == null || start == null || goal == null)
                 return;
 
-            path = pathfinder.PathTo(graph, start.Vertex, goal.Vertex);
+            if (findPathThread != null && findPathThread.IsAlive)
+                findPathThread.Abort();
+
+            findPathThread = new Thread(new ThreadStart(RunPath));
+            findPathThread.IsBackground = true;
+            findPathThread.Start();
+        }
+        private void RunPath()
+        {
+            grid.ResetColor();
+            path = grid.GetPath(pathfinder.PathTo(grid, graph, start.Vertex, goal.Vertex));
         }
         private void DelPath(GameWindow window)
         {

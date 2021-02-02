@@ -43,6 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\Game\Grid.cs" />
+    <Compile Include="src\Maze\Maze.cs" />
     <Compile Include="src\UI\Button.cs" />
     <Compile Include="src\Game\GameObject.cs" />
     <Compile Include="src\Game\Tile.cs" />
@@ -50,15 +51,15 @@
     <Compile Include="src\Graph\Graph.cs" />
     <Compile Include="src\Graph\Vertex.cs" />
     <Compile Include="src\Game\MainGame.cs" />
-    <Compile Include="src\Pathfinders\TreeStructure\MaxHeap.cs" />
-    <Compile Include="src\Pathfinders\TreeStructure\MinHeap.cs" />
-    <Compile Include="src\Pathfinders\TreeStructure\PriorityQueue.cs" />
+    <Compile Include="src\Pathfinding\TreeStructure\MaxHeap.cs" />
+    <Compile Include="src\Pathfinding\TreeStructure\MinHeap.cs" />
+    <Compile Include="src\Pathfinding\TreeStructure\PriorityQueue.cs" />
     <Compile Include="src\Window\Camera.cs" />
-    <Compile Include="src\Pathfinders\A_Star.cs" />
-    <Compile Include="src\Pathfinders\BFS.cs" />
-    <Compile Include="src\Pathfinders\DFS.cs" />
-    <Compile Include="src\Pathfinders\Dijkstra.cs" />
-    <Compile Include="src\Pathfinders\IPathfinder.cs" />
+    <Compile Include="src\Pathfinding\A_Star.cs" />
+    <Compile Include="src\Pathfinding\BFS.cs" />
+    <Compile Include="src\Pathfinding\DFS.cs" />
+    <Compile Include="src\Pathfinding\Dijkstra.cs" />
+    <Compile Include="src\Pathfinding\IPathfinder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Utilities\KeyMouseReader.cs" />

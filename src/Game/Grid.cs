@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Graph;
 
 namespace Pathfinding
 {
@@ -8,7 +9,7 @@ namespace Pathfinding
     {
         private readonly List<Tile> tiles
             = new List<Tile>();
-        private readonly Graph graph;
+        private readonly WGraph graph;
 
         private readonly int
             tileWidth,
@@ -28,7 +29,7 @@ namespace Pathfinding
         public bool EightDirectional => eightDirectional;
         public bool FourDirectional => fourDirectional;
 
-        public Grid(Graph graph, int tileWidth, int tileHeight, int tileGapWidth, int tileGapHeight)
+        public Grid(WGraph graph, int tileWidth, int tileHeight, int tileGapWidth, int tileGapHeight)
         {
             this.graph = graph;
             this.tileWidth = tileWidth;
@@ -55,6 +56,12 @@ namespace Pathfinding
             }
         }
 
+        public void ResetColor()
+        {
+            foreach (Tile tile in tiles)
+                tile.Update();
+        }
+
         public void Draw(SpriteBatch spriteBatch)
         {
             tiles.ForEach(t => t.Draw(spriteBatch));
@@ -75,7 +82,6 @@ namespace Pathfinding
                         continue;
 
                     tile.MakeEightDirectional();
-                    tile.Update();
                 }
             }
 
@@ -97,7 +103,6 @@ namespace Pathfinding
                         continue;
 
                     tile.MakeFourDirectional();
-                    tile.Update();
                 }
             }
 
@@ -105,9 +110,21 @@ namespace Pathfinding
             eightDirectional = false;
         }
 
+        public List<Tile> GetPath(in List<Vertex> path)
+        {
+            List<Tile> result = new List<Tile>();
+
+            path.ForEach(v => result.Add(AtPos(v.X, v.Y)));
+            return result;
+        }
+
         public Tile AtPos(int x, int y)
         {
             return tiles[x + y * graph.Width];
+        }
+        public Tile AtPos(Point pos)
+        {
+            return tiles[pos.X + pos.Y * graph.Width];
         }
         public Tile AtMousePos(Point pos)
         {

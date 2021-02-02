@@ -2,47 +2,50 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-public class Vertex
+namespace Graph
 {
-    public List<Vertex> Neighbours => Edges.Select(e => e.To).ToList();
-    public List<Edge> Edges { get; private set; }
-
-    public Vertex Parent { get; set; }
-    public Point Position { get; private set; }
-
-    public int X => Position.X;
-    public int Y => Position.Y;
-
-    public bool IsVisited { get; set; }
-
-    public float F => G + H;     // Total Cost
-    public float G { get; set; } // Distance from current to start
-    public float H { get; set; } // Distance from current to end
-
-    public int EdgeCount => Edges.Count;
-
-    public Vertex(Point pos)
+    class Vertex
     {
-        Position = pos;
+        public List<Vertex> Neighbours => Edges.Select(e => e.To).ToList();
+        public List<Edge> Edges { get; private set; }
 
-        Edges = new List<Edge>();
+        public Vertex Parent { get; set; }
+        public Point Position { get; private set; }
 
-        IsVisited = false;
+        public int X => Position.X;
+        public int Y => Position.Y;
 
-        G = float.PositiveInfinity;
-        H = float.PositiveInfinity;
-    }
+        public bool IsVisited { get; set; }
 
-    public void ClearEdges()
-    {
-        Edges.Clear();
-    }
-    public void AddEdge(Edge edge)
-    {
-        Edges.Add(edge);
-    }
-    public void RemoveEdge(Edge edge)
-    {
-        Edges.Remove(edge);
+        public float F => G + H;     // Total Cost
+        public float G { get; set; } // Distance from current to start
+        public float H { get; set; } // Distance from current to end
+
+        public int EdgeCount => Edges.Count;
+
+        public Vertex(Point pos)
+        {
+            Position = pos;
+
+            Edges = new List<Edge>();
+
+            IsVisited = false;
+
+            G = float.PositiveInfinity;
+            H = float.PositiveInfinity;
+        }
+
+        public void ClearEdges()
+        {
+            Edges.Clear();
+        }
+        public void AddEdge(Edge edge)
+        {
+            Edges.Add(edge);
+        }
+        public void RemoveEdge(Edge edge)
+        {
+            Edges.Remove(edge);
+        }
     }
 }

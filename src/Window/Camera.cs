@@ -91,11 +91,11 @@ namespace Window
 
             if (KeyMouseReader.MiddleMouseClick())
             {
-                dragPos = ViewToWorld(KeyMouseReader.MousePos.ToVector2()).ToPoint();
+                dragPos = ViewToWorld(KeyMouseReader.MousePos);
             }
             if (KeyMouseReader.MiddleMouseHold() && dragPos != Point.Zero)
             {
-                Point deltaDragPos = ViewToWorld(KeyMouseReader.MousePos.ToVector2()).ToPoint();
+                Point deltaDragPos = ViewToWorld(KeyMouseReader.MousePos);
                 position += (dragPos - deltaDragPos).ToVector2();
             }
 
