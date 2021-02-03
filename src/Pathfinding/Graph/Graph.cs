@@ -1,19 +1,19 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 
-namespace Graph
+namespace Pathfinding
 {
     /// <summary>
     /// Weighted Graph
     /// </summary>
-    class WGraph
+    class Graph
     {
         private readonly Vertex[] Vertices;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
 
-        public WGraph(int width, int height)
+        public Graph(int width, int height)
         {
             Width = width;
             Height = height;
@@ -42,9 +42,9 @@ namespace Graph
             {
                 for (int x = 0; x < Width; ++x)
                 {
-                    for (int i = -1; i <= 1; ++i) // Left and Right
+                    for (int i = -1; i <= 1; ++i)
                     {
-                        for (int j = -1; j <= 1; ++j) //Top and Bottom
+                        for (int j = -1; j <= 1; ++j)
                         {
                             if (j == 0 && i == 0)
                                 continue;
@@ -54,7 +54,7 @@ namespace Graph
                                 Vertex vertex = AtPos(x, y);
                                 Vertex neighbour = AtPos(x + j, y + i);
 
-                                new Edge(vertex, neighbour);
+                                new Edge(vertex, neighbour, (float)Math.Sqrt(Math.Pow(i, 2) + Math.Pow(j, 2)));
                             }
                         }
                     }

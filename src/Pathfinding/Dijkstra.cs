@@ -1,13 +1,12 @@
 ﻿using System.Threading;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Graph;
 
 namespace Pathfinding
 {
     class Dijkstra : IPathfinder
     {
-        public List<Vertex> PathTo(Grid grid, WGraph graph, Vertex start, Vertex goal)
+        public List<Vertex> PathTo(Grid grid, Graph graph, Vertex start, Vertex goal)
         {
             PriorityQueue<Vertex> open = new MinHeap<Vertex>();
 

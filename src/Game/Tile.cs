@@ -1,13 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Graph;
 
 namespace Pathfinding
 {
     class Tile : GameObject
     {
         private readonly Grid grid;
-        private readonly WGraph graph;
+        private readonly Graph graph;
         private readonly Vertex vertex;
 
         private Color color;
@@ -20,7 +20,7 @@ namespace Pathfinding
         public int X => vertex.X;
         public int Y => vertex.Y;
 
-        public Tile(Vector2 position, Point size, Grid grid, WGraph graph, Vertex vertex) : base(position, size)
+        public Tile(Vector2 position, Point size, Grid grid, Graph graph, Vertex vertex) : base(position, size)
         {
             this.grid = grid;
             this.graph = graph;
@@ -74,7 +74,7 @@ namespace Pathfinding
                     if (!graph.WithinBoard(vertex.X + x, vertex.Y + y))
                         continue;
 
-                    new Edge(vertex, graph.AtPos(vertex.X + x, vertex.Y + y));
+                    new Edge(vertex, graph.AtPos(vertex.X + x, vertex.Y + y), (float)Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2)));
                 }
             }
         }

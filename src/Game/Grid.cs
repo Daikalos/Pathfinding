@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Graph;
 
 namespace Pathfinding
 {
@@ -9,7 +8,7 @@ namespace Pathfinding
     {
         private readonly List<Tile> tiles
             = new List<Tile>();
-        private readonly WGraph graph;
+        private readonly Graph graph;
 
         private readonly int
             tileWidth,
@@ -29,7 +28,7 @@ namespace Pathfinding
         public bool EightDirectional => eightDirectional;
         public bool FourDirectional => fourDirectional;
 
-        public Grid(WGraph graph, int tileWidth, int tileHeight, int tileGapWidth, int tileGapHeight)
+        public Grid(Graph graph, int tileWidth, int tileHeight, int tileGapWidth, int tileGapHeight)
         {
             this.graph = graph;
             this.tileWidth = tileWidth;

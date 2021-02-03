@@ -1,13 +1,12 @@
 ﻿using System.Threading;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Graph;
 
 namespace Pathfinding
 {
     class A_Star : IPathfinder
     {
-        public List<Vertex> PathTo(Grid grid, WGraph graph, Vertex start, Vertex goal)
+        public List<Vertex> PathTo(Grid grid, Graph graph, Vertex start, Vertex goal)
         {
             PriorityQueue<Vertex> open = new MinHeap<Vertex>();
             
@@ -48,9 +47,9 @@ namespace Pathfinding
                         {
                             neighbour.G = gScore;
                             if (grid.EightDirectional) 
-                                neighbour.H = WGraph.DiagonalDistance(neighbour, goal);
+                                neighbour.H = Graph.DiagonalDistance(neighbour, goal);
                             if (grid.FourDirectional) 
-                                neighbour.H = WGraph.ManhattanDistance(neighbour, goal);
+                                neighbour.H = Graph.ManhattanDistance(neighbour, goal);
 
                             neighbour.Parent = current;
 

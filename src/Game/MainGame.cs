@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Utilities;
 using LilyPath;
-using Graph;
+using Pathfinding;
 using Window;
 using UI;
 
@@ -26,7 +26,7 @@ namespace Pathfinding
 
         private SpriteFont font;
 
-        private WGraph graph;
+        private Graph graph;
         private Grid grid;
 
         private List<Tile> path;
@@ -79,7 +79,7 @@ namespace Pathfinding
                     ButtonType.Small, ClearGrid, "Clear", 0.6f, 1.0f, 1.05f)
             };
 
-            graph = new WGraph(64, 64);
+            graph = new Graph(64, 64);
             graph.Generate();
 
             grid = new Grid(graph, 32, 32, 4, 4);
@@ -235,8 +235,7 @@ namespace Pathfinding
             if (findPathThread != null && findPathThread.IsAlive)
                 findPathThread.Abort();
 
-            findPathThread = new Thread(new ThreadStart(RunPath));
-            findPathThread.IsBackground = true;
+            findPathThread = new Thread(new ThreadStart(RunPath)) { IsBackground = true };
             findPathThread.Start();
         }
         private void RunPath()
@@ -246,11 +245,14 @@ namespace Pathfinding
         }
         private void DelPath(GameWindow window)
         {
+            currPath = string.Empty;
+
             start = null;
             goal = null;
-            path.Clear();
             pathfinder = null;
-            currPath = string.Empty;
+
+            path.Clear();
+            grid.ResetColor();
         }
         private void ClearGrid(GameWindow window)
         {

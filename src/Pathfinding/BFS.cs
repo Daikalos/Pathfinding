@@ -1,13 +1,12 @@
 ﻿using System.Threading;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Graph;
 
 namespace Pathfinding
 {
     class BFS : IPathfinder
     {
-        public List<Vertex> PathTo(Grid grid, WGraph graph, Vertex start, Vertex goal)
+        public List<Vertex> PathTo(Grid grid, Graph graph, Vertex start, Vertex goal)
         {
             Queue<Vertex> open = new Queue<Vertex>();
 
