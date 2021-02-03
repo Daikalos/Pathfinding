@@ -20,6 +20,7 @@ namespace Pathfinding
         private DrawBatch drawBatch;
 
         private Thread findPathThread;
+        private Thread generateMazeThread;
 
         private List<Button> buttons;
         private Camera camera;
@@ -28,6 +29,7 @@ namespace Pathfinding
 
         private Graph graph;
         private Grid grid;
+        private Maze maze;
 
         private List<Tile> path;
         private Tile current, start, goal;
@@ -74,9 +76,11 @@ namespace Pathfinding
                     ButtonType.Small, EightDir, "8-Dir", 0.6f, 1.0f, 1.05f),
                 new Button(new Vector2(Window.ClientBounds.Width - 128 - 16, 80), new Point(128, 48),
                     ButtonType.Small, FourDir, "4-Dir", 0.6f, 1.0f, 1.05f),
-
                 new Button(new Vector2(Window.ClientBounds.Width - 128 - 16, 144), new Point(128, 48),
-                    ButtonType.Small, ClearGrid, "Clear", 0.6f, 1.0f, 1.05f)
+                    ButtonType.Small, ClearGrid, "Clear", 0.6f, 1.0f, 1.05f),
+
+                new Button(new Vector2(Window.ClientBounds.Width - 452 - 16, Window.ClientBounds.Height - 64 - 16), new Point(452, 64),
+                    ButtonType.Wide, GenerateMaze, "Generate Maze", 0.9f, 1.0f, 1.02f)
             };
 
             graph = new Graph(64, 64);
@@ -84,6 +88,8 @@ namespace Pathfinding
 
             grid = new Grid(graph, 32, 32, 4, 4);
             grid.Generate();
+
+            maze = new Maze(grid, graph);
 
             path = new List<Tile>();
 
@@ -192,11 +198,11 @@ namespace Pathfinding
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Dir: ", new Vector2(16, 480), new Color(59, 76, 93), 0.9f);
 
             if (current != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, current.X + "," + current.Y, new Vector2(200, 300), new Color(59, 76, 93), 0.9f);
+                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, current.X + ";" + current.Y, new Vector2(200, 300), new Color(59, 76, 93), 0.9f);
             if (start != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, start.X + "," + start.Y, new Vector2(200, 340), new Color(59, 76, 93), 0.9f);
+                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, start.X + ";" + start.Y, new Vector2(200, 340), new Color(59, 76, 93), 0.9f);
             if (goal != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, goal.X + "," + goal.Y, new Vector2(200, 380), new Color(59, 76, 93), 0.9f);
+                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, goal.X + ";" + goal.Y, new Vector2(200, 380), new Color(59, 76, 93), 0.9f);
 
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, path.Count.ToString(), new Vector2(200, 440), new Color(59, 76, 93), 0.9f);
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, dirPath, new Vector2(200, 480), new Color(59, 76, 93), 0.9f);
@@ -235,13 +241,15 @@ namespace Pathfinding
             if (findPathThread != null && findPathThread.IsAlive)
                 findPathThread.Abort();
 
-            findPathThread = new Thread(new ThreadStart(RunPath)) { IsBackground = true };
+            findPathThread = new Thread(new ThreadStart(() => 
+            {
+                grid.ResetColor();
+                path = grid.GetPath(pathfinder.PathTo(grid, graph, start.Vertex, goal.Vertex));
+            })) 
+            { 
+                IsBackground = true
+            };
             findPathThread.Start();
-        }
-        private void RunPath()
-        {
-            grid.ResetColor();
-            path = grid.GetPath(pathfinder.PathTo(grid, graph, start.Vertex, goal.Vertex));
         }
         private void DelPath(GameWindow window)
         {
@@ -254,8 +262,12 @@ namespace Pathfinding
             path.Clear();
             grid.ResetColor();
         }
+
         private void ClearGrid(GameWindow window)
         {
+            if (generateMazeThread != null && generateMazeThread.IsAlive)
+                generateMazeThread.Abort();
+
             for (int y = 0; y < graph.Height; ++y)
             {
                 for (int x = 0; x < graph.Width; ++x)
@@ -273,6 +285,21 @@ namespace Pathfinding
         {
             dirPath = "4-Dir";
             grid.MakeFourDirectional();
+        }
+
+        private void GenerateMaze(GameWindow window)
+        {
+            if (generateMazeThread != null && generateMazeThread.IsAlive)
+                generateMazeThread.Abort();
+
+            generateMazeThread = new Thread(new ThreadStart(() => 
+            { 
+                maze.Generate(); 
+            })) 
+            { 
+                IsBackground = true 
+            };
+            generateMazeThread.Start();
         }
 
         private void AddWall(Tile tile)

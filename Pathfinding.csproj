@@ -43,7 +43,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\Game\Grid.cs" />
+    <Compile Include="src\Pathfinding\Maze\IMazeGenerator.cs" />
     <Compile Include="src\Pathfinding\Maze\Maze.cs" />
+    <Compile Include="src\Pathfinding\Maze\RDFS.cs" />
     <Compile Include="src\UI\Button.cs" />
     <Compile Include="src\Game\GameObject.cs" />
     <Compile Include="src\Game\Tile.cs" />

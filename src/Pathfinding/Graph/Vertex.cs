@@ -41,10 +41,16 @@ namespace Pathfinding
         }
         public void AddEdge(Edge edge)
         {
+            if (edge == null)
+                return;
+
             Edges.Add(edge);
         }
         public void RemoveEdge(Edge edge)
         {
+            if (edge == null)
+                return;
+
             Edges.Remove(edge);
         }
     }

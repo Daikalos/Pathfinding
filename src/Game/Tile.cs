@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -31,7 +33,8 @@ namespace Pathfinding
 
         public override void Update()
         {
-            isWall = (vertex.EdgeCount == 0);
+            isWall = !vertex.Edges.All(
+                e0 => e0.To.Edges.Any(e1 => e1.To == vertex));
             color = isWall ? Color.DimGray : Color.LightGray;
         }
 
@@ -42,8 +45,11 @@ namespace Pathfinding
 
         public void AddWall()
         {
-            isWall = true;
-            vertex.ClearEdges();
+            if (isWall)
+                return;
+
+            foreach (Vertex n0 in vertex.Neighbours)
+                n0.RemoveEdge(n0.Edges.Where(e => e.To == vertex).First());
 
             Update();
         }
@@ -52,10 +58,11 @@ namespace Pathfinding
             if (!isWall)
                 return;
 
-            if (grid.EightDirectional)
-                MakeEightDirectional();
-            else if (grid.FourDirectional)
-                MakeFourDirectional();
+            foreach (Vertex n0 in vertex.Neighbours)
+            {
+                if (n0.Edges.All(e => e.To != vertex))
+                    new Edge(n0, vertex);
+            }
 
             Update();
         }
