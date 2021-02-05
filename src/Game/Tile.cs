@@ -33,8 +33,8 @@ namespace Pathfinding
 
         public override void Update()
         {
-            isWall = !vertex.Edges.All(
-                e0 => e0.To.Edges.Any(e1 => e1.To == vertex));
+            isWall = !vertex.Neighbours.All(
+                n => n.Edges.Any(e1 => e1.To == vertex));
             color = isWall ? Color.DimGray : Color.LightGray;
         }
 
@@ -48,8 +48,13 @@ namespace Pathfinding
             if (isWall)
                 return;
 
-            foreach (Vertex n0 in vertex.Neighbours)
-                n0.RemoveEdge(n0.Edges.Where(e => e.To == vertex).First());
+            vertex.Neighbours.ForEach(n =>
+            {
+                List<Edge> edgeToRemove = n.Edges.Where(e => e.To == vertex).ToList();
+
+                if (edgeToRemove.Count > 0)
+                    edgeToRemove.ForEach(e => n.RemoveEdge(e));
+            });
 
             Update();
         }

@@ -54,6 +54,8 @@ namespace Pathfinding
                                 Vertex vertex = AtPos(x, y);
                                 Vertex neighbour = AtPos(x + j, y + i);
 
+                                vertex.AddNeighbour(neighbour);
+
                                 new Edge(vertex, neighbour, (float)Math.Sqrt(Math.Pow(i, 2) + Math.Pow(j, 2)));
                             }
                         }

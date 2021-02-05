@@ -6,7 +6,7 @@ namespace Pathfinding
 {
     class Vertex
     {
-        public List<Vertex> Neighbours => Edges.Select(e => e.To).ToList();
+        public List<Vertex> Neighbours { get; private set; }
         public List<Edge> Edges { get; private set; }
 
         public Vertex Parent { get; set; }
@@ -27,12 +27,26 @@ namespace Pathfinding
         {
             Position = pos;
 
+            Neighbours = new List<Vertex>();
             Edges = new List<Edge>();
 
             IsVisited = false;
 
             G = float.PositiveInfinity;
             H = float.PositiveInfinity;
+        }
+
+        public void ClearNeighbours()
+        {
+            Neighbours.Clear();
+        }
+        public void AddNeighbour(Vertex vertex)
+        {
+            Neighbours.Add(vertex);
+        }
+        public void RemoveNeighbour(Vertex vertex)
+        {
+            Neighbours.Remove(vertex);
         }
 
         public void ClearEdges()

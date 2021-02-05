@@ -57,6 +57,7 @@ namespace Pathfinding
 
         public void ResetColor()
         {
+
             foreach (Tile tile in tiles)
                 tile.Update();
         }
