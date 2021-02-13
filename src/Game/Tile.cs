@@ -33,8 +33,8 @@ namespace Pathfinding
 
         public override void Update()
         {
-            isWall = !vertex.Neighbours.All(
-                n => n.Edges.Any(e1 => e1.To == vertex));
+            isWall = vertex.Neighbours.All(
+                n => n.Edges.All(e => e.To != vertex));
             color = isWall ? Color.DimGray : Color.LightGray;
         }
 
@@ -63,10 +63,21 @@ namespace Pathfinding
             if (!isWall)
                 return;
 
-            foreach (Vertex n0 in vertex.Neighbours)
+            for (int y = -1; y <= 1; ++y)
             {
-                if (n0.Edges.All(e => e.To != vertex))
-                    new Edge(n0, vertex);
+                for (int x = -1; x <= 1; ++x)
+                {
+                    if (grid.FourDirectional && (x & y) != 0)
+                        continue;
+
+                    if (!graph.WithinBoard(vertex.X + x, vertex.Y + y))
+                        continue;
+
+                    Vertex n = graph.AtPos(vertex.X + x, vertex.Y + y);
+
+                    if (n.Edges.All(e => e.To != vertex))
+                        new Edge(n, vertex, (float)Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2)));
+                }
             }
 
             Update();
@@ -74,39 +85,35 @@ namespace Pathfinding
 
         public void MakeEightDirectional()
         {
-            vertex.ClearEdges();
-
-            for (int y = -1; y <= 1; ++y)
+            for (int y = -1; y <= 1; y += 2)
             {
-                for (int x = -1; x <= 1; ++x)
+                for (int x = -1; x <= 1; x += 2)
                 {
-                    if (x == 0 && y == 0)
-                        continue;
-
                     if (!graph.WithinBoard(vertex.X + x, vertex.Y + y))
                         continue;
 
-                    new Edge(vertex, graph.AtPos(vertex.X + x, vertex.Y + y), (float)Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2)));
+                    Vertex n = graph.AtPos(vertex.X + x, vertex.Y + y);
+
+                    if (n.Edges.All(e => e.To != vertex))
+                         new Edge(n, vertex, (float)Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2)));
                 }
             }
         }
         public void MakeFourDirectional()
         {
-            vertex.ClearEdges();
-
             for (int y = -1; y <= 1; y += 2)
             {
-                if (!graph.WithinBoard(vertex.X, vertex.Y + y))
-                    continue;
+                for (int x = -1; x <= 1; x += 2)
+                {
+                    if (!graph.WithinBoard(vertex.X + x, vertex.Y + y))
+                        continue;
 
-                new Edge(vertex, graph.AtPos(vertex.X, vertex.Y + y));
-            }
-            for (int x = -1; x <= 1; x += 2)
-            {
-                if (!graph.WithinBoard(vertex.X + x, vertex.Y))
-                    continue;
+                    Vertex n = graph.AtPos(vertex.X + x, vertex.Y + y);
+                    List<Edge> edgeToRemove = n.Edges.Where(e => e.To == vertex).ToList();
 
-                new Edge(vertex, graph.AtPos(vertex.X + x, vertex.Y));
+                    if (edgeToRemove.Count > 0)
+                        edgeToRemove.ForEach(e => n.RemoveEdge(e));
+                }
             }
         }
 

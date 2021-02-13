@@ -15,6 +15,8 @@ namespace Pathfinding
         {
             Stack<Vertex> open = new Stack<Vertex>();
 
+            graph.InitializeVertices();
+
             Vertex current = start;
             current.IsVisited = true;
 
@@ -29,8 +31,8 @@ namespace Pathfinding
                     Thread.Sleep(1);
 
                     Tile tile = grid.AtPos(current.Position);
-                    
-                    tile.Update();
+
+                    tile.Color = Color.AliceBlue;
                 }
 
                 List<Tuple<Vertex, Edge>> unvisitedNeighbours = new List<Tuple<Vertex, Edge>>();

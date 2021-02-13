@@ -91,6 +91,10 @@ namespace Pathfinding
         {
             return WithinBoard(pos.X, pos.Y);
         }
+        public bool WithinBoard(Vertex vertex)
+        {
+            return WithinBoard(vertex.Position);
+        }
 
         public static float ManhattanDistance(Vertex from, Vertex to)
         {

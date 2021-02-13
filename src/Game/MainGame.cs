@@ -83,7 +83,7 @@ namespace Pathfinding
                     ButtonType.Wide, GenerateMaze, "Generate Maze", 0.9f, 1.0f, 1.02f)
             };
 
-            graph = new Graph(64, 64);
+            graph = new Graph(16, 16);
             graph.Generate();
 
             grid = new Grid(graph, 32, 32, 4, 4);
@@ -185,10 +185,9 @@ namespace Pathfinding
             if (goal != null)
                 StringManager.DrawStringMid(spriteBatch, font, "G", goal.Middle, Color.Red, 1.0f);
 
+                    // -- USER INTERFACE --
 
-            // -- USER INTERFACE --
-
-            buttons.ForEach(b => b.Draw(spriteBatch, camera));
+                    buttons.ForEach(b => b.Draw(spriteBatch, camera));
 
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Path: " + currPath, new Vector2(160, 40), new Color(59, 76, 93), 0.9f);
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Curr:", new Vector2(16, 300), new Color(59, 76, 93), 0.9f);
