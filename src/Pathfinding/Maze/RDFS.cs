@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -13,53 +14,64 @@ namespace Pathfinding
     {
         public void Generate(Graph graph, Grid grid, Vertex start)
         {
-            Stack<Vertex> open = new Stack<Vertex>();
+            List<Vertex> open = new List<Vertex>();
 
-            graph.InitializeVertices();
+            for (int y = 0; y < graph.Height; ++y) // Add all vertices
+            {
+                for (int x = 0; x < graph.Width; ++x)
+                {
+                    graph.AtPos(x, y).ClearEdges();
+                }
+            }
+
+            grid.UpdateColor();
 
             Vertex current = start;
             current.IsVisited = true;
 
-            open.Push(current);
+            grid.AtPos(current).RemoveWall();
+            open.AddRange(Neighbours(graph, grid, current));
 
             while (open.Count > 0)
             {
-                current = open.Pop();
+                int r = StaticRandom.RandomNumber(0, open.Count);
+                current = open[r];
 
-                // Visualization
+                List<Vertex> neighbours = Neighbours(graph, grid, current);
+
+                if (neighbours.Where(n => n.IsVisited).Count() < 2)
                 {
-                    Thread.Sleep(1);
+                    grid.AtPos(current).RemoveWall();
+                    open.AddRange(Neighbours(graph, grid, current).Where(n => !n.IsVisited));
 
-                    Tile tile = grid.AtPos(current.Position);
-
-                    tile.Color = Color.AliceBlue;
+                    current.IsVisited = true;
                 }
 
-                List<Tuple<Vertex, Edge>> unvisitedNeighbours = new List<Tuple<Vertex, Edge>>();
+                open.Remove(current);
+            }
+        }
 
-                foreach (Edge edge in current.Edges)
+        private List<Vertex> Neighbours(Graph graph, Grid grid, Vertex vertex)
+        {
+            List<Vertex> neighbours = new List<Vertex>();
+
+            for (int y = -1; y <= 1; ++y) // Add all vertices
+            {
+                for (int x = -1; x <= 1; ++x)
                 {
-                    Vertex neighbour = edge.To;
-
-                    if (neighbour.IsVisited)
+                    if (grid.FourDirectional && (x & y) != 0)
                         continue;
 
-                    unvisitedNeighbours.Add(new Tuple<Vertex, Edge>(neighbour, edge));
-                }
+                    if (!graph.WithinBoard(vertex.X + x, vertex.Y + y))
+                        continue;
 
-                if (unvisitedNeighbours.Count > 0)
-                {
-                    open.Push(current);
+                    Vertex neighbour = graph.AtPos(vertex.X + x, vertex.Y + y);
 
-                    Tuple<Vertex, Edge> data = unvisitedNeighbours[StaticRandom.RandomNumber(0, unvisitedNeighbours.Count)];
-
-                    Vertex randVertex = data.Item1;
-                    current.RemoveEdge(data.Item2);
-
-                    randVertex.IsVisited = true;
-                    open.Push(randVertex);
+                    neighbours.Add(neighbour);
                 }
             }
+
+            return neighbours;
         }
     }
 }

@@ -23,8 +23,6 @@ namespace Pathfinding
 
                 // Visualization
                 {
-                    Thread.Sleep(1);
-
                     Tile tile = grid.AtPos(current.Position);
 
                     if (!tile.IsWall)

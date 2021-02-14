@@ -54,7 +54,7 @@ namespace Pathfinding
 
         protected override void Initialize()
         {
-            camera = new Camera(Window, new Vector2(0.25f, 4.0f), 600.0f, 0.0f, 0.08f);
+            camera = new Camera(Window, new Vector2(0.025f, 4.0f), 600.0f, 0.0f, 0.05f);
 
             buttons = new List<Button>()
             {
@@ -83,10 +83,10 @@ namespace Pathfinding
                     ButtonType.Wide, GenerateMaze, "Generate Maze", 0.9f, 1.0f, 1.02f)
             };
 
-            graph = new Graph(16, 16);
+            graph = new Graph(1024, 1024);
             graph.Generate();
 
-            grid = new Grid(graph, 32, 32, 4, 4);
+            grid = new Grid(graph, 32, 32, 8, 8);
             grid.Generate();
 
             maze = new Maze(grid, graph);
@@ -164,6 +164,26 @@ namespace Pathfinding
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
 
+            drawBatch.Begin(DrawSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
+            
+            /*
+            for (int y = 0; y < graph.Width; ++y)
+            {
+                for (int x = 0; x < graph.Height; ++x)
+                {
+                    Tile tile = grid.AtPos(x, y);
+                    List<Edge> edges = new List<Edge>(tile.Vertex.Edges);
+
+                    foreach (Edge edge in edges)
+                    {
+                        drawBatch.DrawLine(new Pen(new Color(0, 0, 100, 200), 5), tile.Middle, grid.AtPos(edge.To).Middle);
+                    }
+                }
+            }*/
+
+            drawBatch.End();
+
             grid.Draw(spriteBatch);
 
             spriteBatch.End();
@@ -185,9 +205,9 @@ namespace Pathfinding
             if (goal != null)
                 StringManager.DrawStringMid(spriteBatch, font, "G", goal.Middle, Color.Red, 1.0f);
 
-                    // -- USER INTERFACE --
+            // -- USER INTERFACE --
 
-                    buttons.ForEach(b => b.Draw(spriteBatch, camera));
+            buttons.ForEach(b => b.Draw(spriteBatch, camera));
 
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Path: " + currPath, new Vector2(160, 40), new Color(59, 76, 93), 0.9f);
             StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Curr:", new Vector2(16, 300), new Color(59, 76, 93), 0.9f);
@@ -242,7 +262,7 @@ namespace Pathfinding
 
             findPathThread = new Thread(new ThreadStart(() => 
             {
-                grid.ResetColor();
+                grid.UpdateColor();
                 path = grid.GetPath(pathfinder.PathTo(grid, graph, start.Vertex, goal.Vertex));
             })) 
             { 
@@ -259,7 +279,7 @@ namespace Pathfinding
             pathfinder = null;
 
             path.Clear();
-            grid.ResetColor();
+            grid.UpdateColor();
         }
 
         private void ClearGrid(GameWindow window)

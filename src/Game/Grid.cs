@@ -55,7 +55,7 @@ namespace Pathfinding
             }
         }
 
-        public void ResetColor()
+        public void UpdateColor()
         {
             foreach (Tile tile in tiles)
                 tile.Update();
@@ -113,7 +113,7 @@ namespace Pathfinding
         {
             List<Tile> result = new List<Tile>();
 
-            path.ForEach(v => result.Add(AtPos(v.X, v.Y)));
+            path.ForEach(v => result.Add(AtPos(v)));
             return result;
         }
 
@@ -124,6 +124,10 @@ namespace Pathfinding
         public Tile AtPos(Point pos)
         {
             return tiles[pos.X + pos.Y * graph.Width];
+        }
+        public Tile AtPos(Vertex vertex)
+        {
+            return tiles[vertex.X + vertex.Y * graph.Width];
         }
         public Tile AtMousePos(Point pos)
         {

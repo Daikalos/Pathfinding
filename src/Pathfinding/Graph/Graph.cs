@@ -80,7 +80,11 @@ namespace Pathfinding
         }
         public Vertex AtPos(Point pos)
         {
-            return Vertices[pos.X + pos.Y * Width];
+            return AtPos(pos.X, pos.Y);
+        }
+        public Vertex AtPos(Vertex vertex)
+        {
+            return AtPos(vertex.Position);
         }
 
         public bool WithinBoard(int x, int y)
