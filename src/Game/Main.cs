@@ -12,7 +12,7 @@ using UI;
 
 namespace Pathfinding
 {
-    public class MainGame : Game
+    public class Main : Game
     {
         private readonly GraphicsDeviceManager graphics;
 
@@ -29,26 +29,30 @@ namespace Pathfinding
 
         private Graph graph;
         private Grid grid;
-        private Maze maze;
 
         private List<Tile> path;
         private Tile current, start, goal;
 
         private IPathfinder pathfinder;
+        private IMaze maze;
+
         private string currPath;
         private string dirPath;
 
-        public MainGame()
+        public Main()
         {
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this)
+            {
+                GraphicsProfile = GraphicsProfile.HiDef,
+                SynchronizeWithVerticalRetrace = false
+            };
+
             Content.RootDirectory = "Content";
 
             graphics.PreferredBackBufferWidth = 1600;
             graphics.PreferredBackBufferHeight = 900;
 
-            IsFixedTimeStep = true;
-            TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 144.0f);
-
+            IsFixedTimeStep = false;
             IsMouseVisible = true;
         }
 
@@ -83,13 +87,13 @@ namespace Pathfinding
                     ButtonType.Wide, GenerateMaze, "Generate Maze", 0.9f, 1.0f, 1.02f)
             };
 
-            graph = new Graph(1024, 1024);
+            graph = new Graph(128, 128);
             graph.Generate();
 
             grid = new Grid(graph, 32, 32, 8, 8);
             grid.Generate();
 
-            maze = new Maze(grid, graph);
+            maze = new RDFS();
 
             path = new List<Tile>();
 
@@ -105,12 +109,12 @@ namespace Pathfinding
             spriteBatch = new SpriteBatch(GraphicsDevice);
             drawBatch = new DrawBatch(GraphicsDevice);
 
-            ResourceManager.AddTexture("Node", this.Content.Load<Texture2D>("Sprites/node"));
-            ResourceManager.AddTexture("Button_Small", this.Content.Load<Texture2D>("Sprites/button_small"));
-            ResourceManager.AddTexture("Button_Wide", this.Content.Load<Texture2D>("Sprites/button_wide"));
-            ResourceManager.AddTexture("Null", this.Content.Load<Texture2D>("Sprites/null"));
+            ResourceManager.AddTexture("Node", Content.Load<Texture2D>("Sprites/node"));
+            ResourceManager.AddTexture("Button_Small", Content.Load<Texture2D>("Sprites/button_small"));
+            ResourceManager.AddTexture("Button_Wide", Content.Load<Texture2D>("Sprites/button_wide"));
+            ResourceManager.AddTexture("Null", Content.Load<Texture2D>("Sprites/null"));
 
-            ResourceManager.AddFont("8bit", this.Content.Load<SpriteFont>("Fonts/8bit"));
+            ResourceManager.AddFont("8bit", Content.Load<SpriteFont>("Fonts/8bit"));
 
             grid.LoadContent();
             buttons.ForEach(b => b.LoadContent());
@@ -125,10 +129,12 @@ namespace Pathfinding
 
         protected override void Update(GameTime gameTime)
         {
-            KeyMouseReader.Update();
-            camera.Update(gameTime);
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            buttons.ForEach(b => b.Update(Window));
+            KeyMouseReader.Update();
+            camera.Update(deltaTime);
+
+            buttons.ForEach(b => b.Update());
 
             Point mousePos = camera.ViewToWorld(KeyMouseReader.MousePos);
             current = grid.AtMousePos(mousePos);
@@ -200,59 +206,59 @@ namespace Pathfinding
                 SamplerState.AnisotropicWrap, null, null, null, camera.WorldMatrix);
 
             if (start != null)
-                StringManager.DrawStringMid(spriteBatch, font, "S", start.Middle, Color.Red, 1.0f);
+                StringUtilities.DrawM(spriteBatch, font, "S", start.Middle, Color.Red, 1.0f);
 
             if (goal != null)
-                StringManager.DrawStringMid(spriteBatch, font, "G", goal.Middle, Color.Red, 1.0f);
+                StringUtilities.DrawM(spriteBatch, font, "G", goal.Middle, Color.Red, 1.0f);
 
             // -- USER INTERFACE --
 
             buttons.ForEach(b => b.Draw(spriteBatch, camera));
 
-            StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Path: " + currPath, new Vector2(160, 40), new Color(59, 76, 93), 0.9f);
-            StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Curr:", new Vector2(16, 300), new Color(59, 76, 93), 0.9f);
-            StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Start:", new Vector2(16, 340), new Color(59, 76, 93), 0.9f);
-            StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Goal: ", new Vector2(16, 380), new Color(59, 76, 93), 0.9f);
-            StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Cnt: ", new Vector2(16, 440), new Color(59, 76, 93), 0.9f);
-            StringManager.CameraDrawStringLeft(spriteBatch, camera, font, "Dir: ", new Vector2(16, 480), new Color(59, 76, 93), 0.9f);
+            StringUtilities.DrawLC(spriteBatch, camera, font, "Path: " + currPath, new Vector2(160, 40), new Color(59, 76, 93), 0.9f);
+            StringUtilities.DrawLC(spriteBatch, camera, font, "Curr:", new Vector2(16, 300), new Color(59, 76, 93), 0.9f);
+            StringUtilities.DrawLC(spriteBatch, camera, font, "Start:", new Vector2(16, 340), new Color(59, 76, 93), 0.9f);
+            StringUtilities.DrawLC(spriteBatch, camera, font, "Goal: ", new Vector2(16, 380), new Color(59, 76, 93), 0.9f);
+            StringUtilities.DrawLC(spriteBatch, camera, font, "Cnt: ", new Vector2(16, 440), new Color(59, 76, 93), 0.9f);
+            StringUtilities.DrawLC(spriteBatch, camera, font, "Dir: ", new Vector2(16, 480), new Color(59, 76, 93), 0.9f);
 
             if (current != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, current.X + ";" + current.Y, new Vector2(200, 300), new Color(59, 76, 93), 0.9f);
+                StringUtilities.DrawLC(spriteBatch, camera, font, current.X + ";" + current.Y, new Vector2(200, 300), new Color(59, 76, 93), 0.9f);
             if (start != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, start.X + ";" + start.Y, new Vector2(200, 340), new Color(59, 76, 93), 0.9f);
+                StringUtilities.DrawLC(spriteBatch, camera, font, start.X + ";" + start.Y, new Vector2(200, 340), new Color(59, 76, 93), 0.9f);
             if (goal != null)
-                StringManager.CameraDrawStringLeft(spriteBatch, camera, font, goal.X + ";" + goal.Y, new Vector2(200, 380), new Color(59, 76, 93), 0.9f);
+                StringUtilities.DrawLC(spriteBatch, camera, font, goal.X + ";" + goal.Y, new Vector2(200, 380), new Color(59, 76, 93), 0.9f);
 
-            StringManager.CameraDrawStringLeft(spriteBatch, camera, font, path.Count.ToString(), new Vector2(200, 440), new Color(59, 76, 93), 0.9f);
-            StringManager.CameraDrawStringLeft(spriteBatch, camera, font, dirPath, new Vector2(200, 480), new Color(59, 76, 93), 0.9f);
+            StringUtilities.DrawLC(spriteBatch, camera, font, path.Count.ToString(), new Vector2(200, 440), new Color(59, 76, 93), 0.9f);
+            StringUtilities.DrawLC(spriteBatch, camera, font, dirPath, new Vector2(200, 480), new Color(59, 76, 93), 0.9f);
 
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
 
-        private void Select_A_Star(GameWindow window)
+        private void Select_A_Star()
         {
             pathfinder = new A_Star();
             currPath = "A*";
         }
-        private void Select_Dijkstra(GameWindow window)
+        private void Select_Dijkstra()
         {
             pathfinder = new Dijkstra();
             currPath = "Dijkstra";
         }
-        private void Select_BFS(GameWindow window)
+        private void Select_BFS()
         {
             pathfinder = new BFS();
             currPath = "BFS";
         }
-        private void Select_DFS(GameWindow window)
+        private void Select_DFS()
         {
             pathfinder = new DFS();
             currPath = "DFS";
         }
 
-        private void FindPath(GameWindow window)
+        private void FindPath()
         {
             if (pathfinder == null || start == null || goal == null)
                 return;
@@ -270,7 +276,7 @@ namespace Pathfinding
             };
             findPathThread.Start();
         }
-        private void DelPath(GameWindow window)
+        private void DelPath()
         {
             currPath = string.Empty;
 
@@ -282,7 +288,7 @@ namespace Pathfinding
             grid.UpdateColor();
         }
 
-        private void ClearGrid(GameWindow window)
+        private void ClearGrid()
         {
             if (generateMazeThread != null && generateMazeThread.IsAlive)
                 generateMazeThread.Abort();
@@ -295,25 +301,25 @@ namespace Pathfinding
                 }
             }
         }
-        private void EightDir(GameWindow window)
+        private void EightDir()
         {
             dirPath = "8-Dir";
             grid.MakeEightDirectional();
         }
-        private void FourDir(GameWindow window)
+        private void FourDir()
         {
             dirPath = "4-Dir";
             grid.MakeFourDirectional();
         }
 
-        private void GenerateMaze(GameWindow window)
+        private void GenerateMaze()
         {
             if (generateMazeThread != null && generateMazeThread.IsAlive)
                 generateMazeThread.Abort();
 
             generateMazeThread = new Thread(new ThreadStart(() => 
             { 
-                maze.Generate(); 
+                maze.Generate(graph, grid, graph.AtPos(0, 0)); 
             })) 
             { 
                 IsBackground = true 

@@ -13,7 +13,7 @@
     <AssemblyName>Pathfinding</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -43,8 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\Game\Grid.cs" />
-    <Compile Include="src\Pathfinding\Maze\IMazeGenerator.cs" />
-    <Compile Include="src\Pathfinding\Maze\Maze.cs" />
+    <Compile Include="src\Pathfinding\Maze\IMaze.cs" />
     <Compile Include="src\Pathfinding\Maze\RDFS.cs" />
     <Compile Include="src\UI\Button.cs" />
     <Compile Include="src\Game\GameObject.cs" />
@@ -52,22 +51,22 @@
     <Compile Include="src\Pathfinding\Graph\Edge.cs" />
     <Compile Include="src\Pathfinding\Graph\Graph.cs" />
     <Compile Include="src\Pathfinding\Graph\Vertex.cs" />
-    <Compile Include="src\Game\MainGame.cs" />
+    <Compile Include="src\Game\Main.cs" />
     <Compile Include="src\Pathfinding\PriorityQueue\MaxHeap.cs" />
     <Compile Include="src\Pathfinding\PriorityQueue\MinHeap.cs" />
     <Compile Include="src\Pathfinding\PriorityQueue\PriorityQueue.cs" />
+    <Compile Include="src\Utilities\KeyMouseReader.cs" />
+    <Compile Include="src\Utilities\StringUtilities.cs" />
     <Compile Include="src\Window\Camera.cs" />
-    <Compile Include="src\Pathfinding\A_Star.cs" />
-    <Compile Include="src\Pathfinding\BFS.cs" />
-    <Compile Include="src\Pathfinding\DFS.cs" />
-    <Compile Include="src\Pathfinding\Dijkstra.cs" />
-    <Compile Include="src\Pathfinding\IPathfinder.cs" />
+    <Compile Include="src\Pathfinding\Pathfinders\A_Star.cs" />
+    <Compile Include="src\Pathfinding\Pathfinders\BFS.cs" />
+    <Compile Include="src\Pathfinding\Pathfinders\DFS.cs" />
+    <Compile Include="src\Pathfinding\Pathfinders\Dijkstra.cs" />
+    <Compile Include="src\Pathfinding\Pathfinders\IPathfinder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Utilities\KeyMouseReader.cs" />
     <Compile Include="src\Utilities\ResourceManager.cs" />
     <Compile Include="src\Utilities\StaticRandom.cs" />
-    <Compile Include="src\Utilities\StringManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="LilyPath, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

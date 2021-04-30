@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
+﻿using System.Linq;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Utilities;
 
 namespace Pathfinding
@@ -10,7 +7,7 @@ namespace Pathfinding
     /// <summary>
     /// randomized depth first search
     /// </summary>
-    class RDFS : IMazeGenerator
+    class RDFS : IMaze
     {
         public void Generate(Graph graph, Grid grid, Vertex start)
         {

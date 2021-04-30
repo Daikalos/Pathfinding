@@ -6,13 +6,13 @@ namespace Pathfinding
     {
         protected class Element
         {
-            public T item { get; private set; }
-            public float priority { get; private set; }
+            public T Item { get; private set; }
+            public float Priority { get; private set; }
 
             public Element(T item, float priority)
             {
-                this.item = item;
-                this.priority = priority;
+                Item = item;
+                Priority = priority;
             }
         }
 
@@ -26,7 +26,7 @@ namespace Pathfinding
 
         public T this[int i]
         {
-            get { return priorityQueue[i].item; }
+            get { return priorityQueue[i].Item; }
         }
 
         public PriorityQueue()
@@ -41,7 +41,7 @@ namespace Pathfinding
         {
             for (int i = 0; i < priorityQueue.Count; i++)
             {
-                if (priorityQueue[i].item.Equals(Element))
+                if (priorityQueue[i].Item.Equals(Element))
                     return true;
             }
             return false;

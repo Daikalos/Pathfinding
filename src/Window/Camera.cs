@@ -52,7 +52,7 @@ namespace Window
             }
         }
 
-        public Vector2 TopLeftCorner  => position - ViewportCenter * (1 / zoom);
+        public Vector2 TopLeftCorner => position - ViewportCenter * (1.0f / zoom);
         public Vector2 ViewportCenter => new Vector2(viewportSize.X / 2, viewportSize.Y / 2);
 
         public float Zoom => zoom;
@@ -66,7 +66,6 @@ namespace Window
 
             viewportSize = window.ClientBounds.Size.ToVector2();
             position = ViewportCenter;
-
             dragPos = Point.Zero;
 
             zoom = 1.0f;
@@ -79,10 +78,10 @@ namespace Window
             zoom = 1.0f;
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(float deltaTime)
         {
             MouseMovement();
-            KeyboardMovement(gameTime);
+            KeyboardMovement(deltaTime);
         }
 
         private void MouseMovement()
@@ -112,23 +111,23 @@ namespace Window
                 zoom = MathHelper.Clamp(zoom, zoomLimit.X, zoomLimit.Y);
             }
         }
-        private void KeyboardMovement(GameTime gameTime)
+        private void KeyboardMovement(float deltaTime)
         {
-            if (KeyMouseReader.KeyHold(Keys.Up))
+            if (KeyMouseReader.KeyHold(Keys.Up) || KeyMouseReader.KeyHold(Keys.W))
             {
-                position.Y -= speed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.Y += speed * (1.0f / zoom) * deltaTime;
             }
-            if (KeyMouseReader.KeyHold(Keys.Down))
+            if (KeyMouseReader.KeyHold(Keys.Down) || KeyMouseReader.KeyHold(Keys.S))
             {
-                position.Y += speed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.Y -= speed * (1.0f / zoom) * deltaTime;
             }
-            if (KeyMouseReader.KeyHold(Keys.Left))
+            if (KeyMouseReader.KeyHold(Keys.Left) || KeyMouseReader.KeyHold(Keys.A))
             {
-                position.X -= speed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.X -= speed * (1.0f / zoom) * deltaTime;
             }
-            if (KeyMouseReader.KeyHold(Keys.Right))
+            if (KeyMouseReader.KeyHold(Keys.Right) || KeyMouseReader.KeyHold(Keys.D))
             {
-                position.X += speed * (1 / zoom) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                position.X += speed * (1.0f / zoom) * deltaTime;
             }
 
             if (KeyMouseReader.KeyHold(Keys.OemPlus))

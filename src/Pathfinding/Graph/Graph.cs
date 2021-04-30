@@ -32,7 +32,7 @@ namespace Pathfinding
             {
                 for (int x = 0; x < Width; ++x)
                 {
-                    Vertices[x + y * Width] = new Vertex(new Point(x, y));
+                    Vertices[x + y * Width] = new Vertex(x, y);
                 }
             }
         }
@@ -82,10 +82,6 @@ namespace Pathfinding
         {
             return AtPos(pos.X, pos.Y);
         }
-        public Vertex AtPos(Vertex vertex)
-        {
-            return AtPos(vertex.Position);
-        }
 
         public bool WithinBoard(int x, int y)
         {
@@ -102,13 +98,13 @@ namespace Pathfinding
 
         public static float ManhattanDistance(Vertex from, Vertex to)
         {
-            return Math.Abs(from.Position.X - to.Position.X) +
-                   Math.Abs(from.Position.Y - to.Position.Y);
+            return Math.Abs(to.Position.X - from.Position.X) +
+                   Math.Abs(to.Position.Y - from.Position.Y);
         }
         public static float DiagonalDistance(Vertex from, Vertex to)
         {
-            return (float)Math.Sqrt(Math.Pow(from.Position.X - to.Position.X, 2) +
-                                    Math.Pow(from.Position.Y - to.Position.Y, 2));
+            return (float)Math.Sqrt(Math.Pow(to.Position.X - from.Position.X, 2) +
+                                     Math.Pow(to.Position.Y - from.Position.Y, 2));
         }
     }
 }

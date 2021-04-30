@@ -6,12 +6,12 @@ namespace Utilities
 {
     static class ResourceManager
     {
-        private static readonly SortedDictionary<string, Texture2D> textures 
-            = new SortedDictionary<string, Texture2D>();
-        private static readonly SortedDictionary<string, SpriteFont> fonts 
-            = new SortedDictionary<string, SpriteFont>();
-        private static readonly SortedDictionary<string, SoundEffectInstance> soundEffects 
-            = new SortedDictionary<string, SoundEffectInstance>();
+        private static readonly Dictionary<string, Texture2D> textures 
+            = new Dictionary<string, Texture2D>();
+        private static readonly Dictionary<string, SpriteFont> fonts 
+            = new Dictionary<string, SpriteFont>();
+        private static readonly Dictionary<string, SoundEffectInstance> soundEffects 
+            = new Dictionary<string, SoundEffectInstance>();
 
         public static void AddTexture(string textureName, Texture2D texture)
         {

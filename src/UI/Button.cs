@@ -13,10 +13,7 @@ namespace UI
 
     class Button : GameObject
     {
-        private SpriteFont font;
-        private ClickEvent clickEvent;
-        private float scale;
-
+        private readonly ClickEvent clickEvent;
         private readonly ButtonType type;
         private readonly string text;
         private readonly float
@@ -24,9 +21,12 @@ namespace UI
             upScale,
             defScale;
 
+        private SpriteFont font;
+        private float scale;
+
         public string Text => text;
 
-        public delegate void ClickEvent(GameWindow window);
+        public delegate void ClickEvent();
 
         public Button(Vector2 position, Point size, 
             ButtonType type, ClickEvent clickEvent, 
@@ -40,12 +40,12 @@ namespace UI
             this.upScale = upScale;
         }
 
-        public void Update(GameWindow window)
+        public override void Update()
         {
             base.Update();
 
             if (IsClicked())
-                clickEvent?.Invoke(window);
+                clickEvent?.Invoke();
 
             scale = IsHold() ? upScale : defScale;
         }
@@ -55,7 +55,7 @@ namespace UI
             spriteBatch.Draw(Texture, camera.TopLeftCorner + new Vector2(Position.X + Origin.X * defScale, Position.Y + Origin.Y * defScale) / camera.Zoom, 
                 SourceRect, Color.White, 0.0f, Origin, scale / camera.Zoom, SpriteEffects.None, 0.0f);
 
-            StringManager.CameraDrawStringMid(spriteBatch, camera, font, text, DestRect.Center.ToVector2(), new Color(59, 76, 93), textScale);
+            StringUtilities.DrawMC(spriteBatch, camera, font, text, DestRect.Center.ToVector2(), new Color(59, 76, 93), textScale);
         }
 
         public bool IsClicked() 

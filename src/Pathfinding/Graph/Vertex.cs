@@ -23,9 +23,9 @@ namespace Pathfinding
 
         public int EdgeCount => Edges.Count;
 
-        public Vertex(Point pos)
+        public Vertex(int x, int y)
         {
-            Position = pos;
+            Position = new Point(x, y);
 
             Neighbours = new List<Vertex>();
             Edges = new List<Edge>();
@@ -34,6 +34,9 @@ namespace Pathfinding
 
             G = float.PositiveInfinity;
             H = float.PositiveInfinity;
+        }
+        public Vertex(Point point) : this(point.X, point.Y)
+        {
         }
 
         public void ClearNeighbours()

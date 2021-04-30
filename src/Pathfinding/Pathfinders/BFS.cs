@@ -4,25 +4,27 @@ using Microsoft.Xna.Framework;
 
 namespace Pathfinding
 {
-    class DFS : IPathfinder
+    class BFS : IPathfinder
     {
         public List<Vertex> PathTo(Grid grid, Graph graph, Vertex start, Vertex goal)
         {
-            Stack<Vertex> open = new Stack<Vertex>();
+            Queue<Vertex> open = new Queue<Vertex>();
 
             graph.InitializeVertices();
 
             Vertex current = start;
             current.IsVisited = true;
 
-            open.Push(current);
+            open.Enqueue(current);
 
             while (open.Count > 0)
             {
-                current = open.Pop();
+                current = open.Dequeue();
 
                 // Visualization
                 {
+                    Thread.Sleep(1);
+
                     Tile tile = grid.AtPos(current.Position);
 
                     if (!tile.IsWall)
@@ -42,7 +44,7 @@ namespace Pathfinding
                         neighbour.Parent = current;
 
                         if (!open.Contains(neighbour))
-                            open.Push(neighbour);
+                            open.Enqueue(neighbour);
                     }
                 }
             }

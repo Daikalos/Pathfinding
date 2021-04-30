@@ -4,12 +4,12 @@ using Microsoft.Xna.Framework;
 
 namespace Pathfinding
 {
-    class Dijkstra : IPathfinder
+    class A_Star : IPathfinder
     {
         public List<Vertex> PathTo(Grid grid, Graph graph, Vertex start, Vertex goal)
         {
             PriorityQueue<Vertex> open = new MinHeap<Vertex>();
-
+            
             graph.InitializeVertices();
 
             Vertex current = start;
@@ -24,9 +24,11 @@ namespace Pathfinding
                 if (!current.IsVisited)
                 {
                     current.IsVisited = true;
-                    
+
                     // Visualization
                     {
+                        Thread.Sleep(1);
+
                         Tile tile = grid.AtPos(current.Position);
 
                         if (!tile.IsWall)
@@ -44,7 +46,10 @@ namespace Pathfinding
                         if (gScore < neighbour.G)
                         {
                             neighbour.G = gScore;
-                            neighbour.H = 0.0f;
+                            if (grid.EightDirectional) 
+                                neighbour.H = Graph.DiagonalDistance(neighbour, goal);
+                            if (grid.FourDirectional) 
+                                neighbour.H = Graph.ManhattanDistance(neighbour, goal);
 
                             neighbour.Parent = current;
 

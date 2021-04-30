@@ -13,7 +13,7 @@ namespace Pathfinding
         public override T Dequeue()
         {
             if (Count <= 0) // No data available
-                return default(T);
+                return default;
 
             Element root = priorityQueue.First();
 
@@ -22,7 +22,7 @@ namespace Pathfinding
 
             MoveDown(0); // After previous root is removed, move the current one down
 
-            return root.item;
+            return root.Item;
         }
 
         private void MoveUp(int pos)
@@ -31,7 +31,7 @@ namespace Pathfinding
                 return;
 
             int parent = Parent(pos);
-            if (priorityQueue[pos].priority > priorityQueue[parent].priority)
+            if (priorityQueue[pos].Priority > priorityQueue[parent].Priority)
             {
                 Swap(pos, parent);
                 MoveUp(parent);
@@ -44,11 +44,11 @@ namespace Pathfinding
             int right = Right(pos);
 
             int smallest = pos;
-            if (left < Count && priorityQueue[left].priority > priorityQueue[smallest].priority)
+            if (left < Count && priorityQueue[left].Priority > priorityQueue[smallest].Priority)
             {
                 smallest = left;
             }
-            if (right < Count && priorityQueue[right].priority > priorityQueue[smallest].priority)
+            if (right < Count && priorityQueue[right].Priority > priorityQueue[smallest].Priority)
             {
                 smallest = right;
             }

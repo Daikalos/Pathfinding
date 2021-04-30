@@ -6,10 +6,9 @@ namespace Pathfinding
 {
     class Grid
     {
-        private readonly List<Tile> tiles
+        private readonly List<Tile> tiles 
             = new List<Tile>();
         private readonly Graph graph;
-
         private readonly int
             tileWidth,
             tileHeight,

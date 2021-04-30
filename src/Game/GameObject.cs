@@ -49,30 +49,27 @@ abstract class GameObject
 
     public virtual void AssignTexture(string name)
     {
-        Texture2D txt = ResourceManager.RequestTexture(name);
+        Texture2D texture = ResourceManager.RequestTexture(name);
 
-        if (txt == null)
+        if (texture == null)
             return;
 
-        Texture = txt;
+        Texture = texture;
         SourceRect = new Rectangle(0, 0, Texture.Width, Texture.Height);
         SetOrigin(1, 1);
     }
 
     public abstract void LoadContent();
 
-    public void SetOrigin(Point frames)
-    {
-        if (Texture == null || Texture.IsDisposed)
-            return;
-
-        Origin = new Vector2(Texture.Width / 2 / frames.X, Texture.Height / 2 / frames.Y);
-    }
     public void SetOrigin(int x, int y)
     {
         if (Texture == null || Texture.IsDisposed)
             return;
 
         Origin = new Vector2(Texture.Width / 2 / x, Texture.Height / 2 / y);
+    }
+    public void SetOrigin(Point frames)
+    {
+        SetOrigin(frames.X, frames.Y);
     }
 }

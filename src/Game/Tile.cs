@@ -12,12 +12,10 @@ namespace Pathfinding
         private readonly Graph graph;
         private readonly Vertex vertex;
 
-        private Color color;
-        private bool isWall;
+        public Color Color { get; set; }
+        public bool IsWall { get; private set; }
 
         public Vertex Vertex => vertex;
-        public Color Color { get => color; set => color = value; }
-        public bool IsWall => isWall;
 
         public int X => vertex.X;
         public int Y => vertex.Y;
@@ -33,19 +31,19 @@ namespace Pathfinding
 
         public override void Update()
         {
-            isWall = vertex.Neighbours.All(
+            IsWall = vertex.Neighbours.All(
                 n => n.Edges.All(e => e.To != vertex));
-            color = isWall ? Color.DimGray : Color.LightGray;
+            Color = IsWall ? Color.DimGray : Color.LightGray;
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, DestRect, null, color);
+            spriteBatch.Draw(Texture, DestRect, null, Color);
         }
 
         public void AddWall()
         {
-            if (isWall)
+            if (IsWall)
                 return;
 
             vertex.Neighbours.ForEach(n =>
@@ -60,7 +58,7 @@ namespace Pathfinding
         }
         public void RemoveWall()
         {
-            if (!isWall)
+            if (!IsWall)
                 return;
 
             for (int y = -1; y <= 1; ++y)
@@ -109,10 +107,9 @@ namespace Pathfinding
                         continue;
 
                     Vertex n = graph.AtPos(vertex.X + x, vertex.Y + y);
-                    List<Edge> edgeToRemove = n.Edges.Where(e => e.To == vertex).ToList();
+                    List<Edge> edgesToRemove = n.Edges.Where(e => e.To == vertex).ToList();
 
-                    if (edgeToRemove.Count > 0)
-                        edgeToRemove.ForEach(e => n.RemoveEdge(e));
+                    edgesToRemove.ForEach(e => n.RemoveEdge(e));
                 }
             }
         }
