@@ -33,7 +33,7 @@ namespace Pathfinding
         {
             IsWall = vertex.Neighbours.All(
                 n => n.Edges.All(e => e.To != vertex));
-            Color = IsWall ? Color.DimGray : Color.Gray;
+            Color = IsWall ? Color.DimGray : Color.DarkGray;
         }
 
         public override void Draw(SpriteBatch spriteBatch)

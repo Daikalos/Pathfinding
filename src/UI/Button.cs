@@ -53,7 +53,7 @@ namespace UI
             spriteBatch.Draw(Texture, new Vector2(Position.X + Origin.X * defScale, Position.Y + Origin.Y * defScale), 
                 SourceRect, Color.White, 0.0f, Origin, scale, SpriteEffects.None, 0.0f);
 
-            StringUtilities.DrawMiddle(spriteBatch, font, text, DestRect.Center.ToVector2(), new Color(59, 76, 93), textScale);
+            StringUtilities.DrawMiddle(spriteBatch, font, text, DestRect.Center.ToVector2(), new Color(150, 200, 255), textScale);
         }
 
         public bool IsClicked() 

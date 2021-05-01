@@ -263,6 +263,11 @@ public class Main : Game
     }
     private void DelPath()
     {
+        if (findPathThread != null && findPathThread.IsAlive)
+            findPathThread.Abort();
+        if (generateMazeThread != null && generateMazeThread.IsAlive)
+            generateMazeThread.Abort();
+
         currPath = string.Empty;
 
         start = null;
