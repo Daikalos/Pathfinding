@@ -55,6 +55,7 @@
     <Compile Include="src\Pathfinding\PriorityQueue\MaxHeap.cs" />
     <Compile Include="src\Pathfinding\PriorityQueue\MinHeap.cs" />
     <Compile Include="src\Pathfinding\PriorityQueue\PriorityQueue.cs" />
+    <Compile Include="src\UI\Text.cs" />
     <Compile Include="src\Utilities\KeyMouseReader.cs" />
     <Compile Include="src\Utilities\StringUtilities.cs" />
     <Compile Include="src\Window\Camera.cs" />

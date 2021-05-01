@@ -33,7 +33,7 @@ namespace Pathfinding
         {
             IsWall = vertex.Neighbours.All(
                 n => n.Edges.All(e => e.To != vertex));
-            Color = IsWall ? Color.DimGray : Color.LightGray;
+            Color = IsWall ? Color.DimGray : Color.Gray;
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -48,10 +48,8 @@ namespace Pathfinding
 
             vertex.Neighbours.ForEach(n =>
             {
-                List<Edge> edgeToRemove = n.Edges.Where(e => e.To == vertex).ToList();
-
-                if (edgeToRemove.Count > 0)
-                    edgeToRemove.ForEach(e => n.RemoveEdge(e));
+                n.Edges.Where(e => e.To == vertex).ToList()
+                    .ForEach(e => n.RemoveEdge(e));
             });
 
             Update();

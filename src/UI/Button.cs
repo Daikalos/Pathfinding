@@ -24,8 +24,6 @@ namespace UI
         private SpriteFont font;
         private float scale;
 
-        public string Text => text;
-
         public delegate void ClickEvent();
 
         public Button(Vector2 position, Point size, 
@@ -52,10 +50,10 @@ namespace UI
 
         public void Draw(SpriteBatch spriteBatch, Camera camera)
         {
-            spriteBatch.Draw(Texture, camera.TopLeftCorner + new Vector2(Position.X + Origin.X * defScale, Position.Y + Origin.Y * defScale) / camera.Zoom, 
-                SourceRect, Color.White, 0.0f, Origin, scale / camera.Zoom, SpriteEffects.None, 0.0f);
+            spriteBatch.Draw(Texture, new Vector2(Position.X + Origin.X * defScale, Position.Y + Origin.Y * defScale), 
+                SourceRect, Color.White, 0.0f, Origin, scale, SpriteEffects.None, 0.0f);
 
-            StringUtilities.DrawMC(spriteBatch, camera, font, text, DestRect.Center.ToVector2(), new Color(59, 76, 93), textScale);
+            StringUtilities.DrawMiddle(spriteBatch, font, text, DestRect.Center.ToVector2(), new Color(59, 76, 93), textScale);
         }
 
         public bool IsClicked() 
